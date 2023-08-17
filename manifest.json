@@ -1,0 +1,15 @@
+{
+    "name": "Solitaire",
+    "short_name": "S",
+    "description": "A clean, free app to play solitaire.",
+    "start_url": "/",
+    "theme_color": "#eeffee",
+    "background_color": "#eeffee",
+    "display": "standalone",
+    "icons": [
+        {
+          "src": "icons/scalable.svg",
+          "sizes": "any"
+        }
+      ]
+}
