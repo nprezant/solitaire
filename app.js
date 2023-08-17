@@ -1,11 +1,329 @@
-const newPeriodFormEl = document.getElementsByTagName("form")[0];
-const startDateInputEl = document.getElementById("start-date");
-const endDateInputEl = document.getElementById("end-date");
-const pastPeriodContainer = document.getElementById("past-periods");
+const canvas = document.getElementById("main-canvas");
+var ctx = canvas.getContext("2d");
 
-// Add the storage key as an app-wide constant
-const STORAGE_KEY = "period-tracker";
+const STORAGE_KEY = "solitaire";
 
+const cardWidth = 64;
+const cardHeight = 89;
+
+const DECK_SIZE = 52;
+const SUIT_SIZE = 13;
+
+const cardImg = new Image();
+cardImg.src = 'img/cards/simple/heart-4.svg';
+
+var ballRadius = 10;
+var x = canvas.width/2;
+var y = canvas.height-30;
+// var dx = 2;
+// var dy = -2;
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+// var rightPressed = false;
+// var leftPressed = false;
+// var brickRowCount = 5;
+// var brickColumnCount = 3;
+// var brickWidth = 75;
+// var brickHeight = 20;
+// var brickPadding = 10;
+// var brickOffsetTop = 30;
+// var brickOffsetLeft = 30;
+// var score = 0;
+// var lives = 3;
+
+class CardView {
+    width = 20;
+    height = width * 89 / 59;
+    constructor(type) {
+        this.type = type;
+    }
+    draw(x, y) {
+        ctx.beginPath();
+        ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 5);
+        ctx.strokeStyle = "#ccc";
+        ctx.stroke();
+        ctx.drawImage(cardImg, cardX, cardY, cardWidth, cardHeight);
+        ctx.closePath();
+    }
+}
+
+// const Suits = Object.freeze({
+//     SPADES:   Symbol("spades"),
+//     HEARTS:   Symbol("hearts"),
+//     CLUBS:    Symbol("clubs"),
+//     DIAMONDS: Symbol("diamonds")
+// });
+
+function makeEnum(arr){
+    let obj = Object.create(null);
+    for (let val of arr){
+        obj[val] = Symbol(val);
+    }
+    return Object.freeze(obj);
+}
+
+const Suits = makeEnum(["spades", "hearts", "clubs", "diamonds"]);
+const Colors = makeEnum(["red", "black"]);
+
+function suitColor(suit) {
+    if (suit == Suits.spades || suit == Suits.clubs) {
+        return Colors.black;
+    }
+    return Colors.red;
+}
+
+class Card {
+    constructor(number, suit) {
+        this.number = number;
+        this.suit = suit;
+        this.color = suitColor(suit);
+    }
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function isUndefined(x) {
+    return typeof x === 'undefined'
+}
+
+class Deck {
+    #cards = [];
+    constructor() {
+    }
+
+    static full() {
+        var deck = new Deck();
+        Suits.forEach(suit => {
+            for (let number = 0; number < SUIT_SIZE; number++) {
+                deck.addToBottom(new Card(number, suit));
+            }
+        });
+    }
+
+    shuffle() {
+        shuffleArray(this.#cards);
+    }
+
+    // Returns the first element in the array.
+    // Does not modify the deck.
+    // Undefined if the array is empty.
+    peek() {
+        return this.#cards[0];
+    }
+
+    take(nCards) {
+        var taken = [];
+        for (let i = 0; i < nCards; ++i) {
+            taken.push(this.#cards.shift());
+        }
+        // When we run out of cards we will get undefined values.
+        taken.filter((x) => isUndefined(x));
+        return taken;
+    }
+
+    addToBottom(cards) {
+        this.#cards.push(cards);
+    }
+
+    addToTop(cards) {
+        this.#cards.unshift(cards);
+    }
+
+    empty() {
+        return this.#cards.length == 0;
+    }
+}
+
+class Foundation {
+    #cards = new Deck();
+
+    constructor() {
+    }
+
+    isPlayable(card) {
+        let topCard = foundation.peek();
+
+        if (isUndefined(topCard) && card.number == 1) {
+            // Ace
+            return true;
+        }
+
+        if (topCard.suit == card.suit && topCard.number == card.number - 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    ncards() {
+        return this.#cards.length();
+    }
+}
+
+class Foundations {
+    #foundations = [] // Decks
+
+    constructor() {
+        for (const foundation of Object.entries(Suits)) {
+            this.#foundations.push(new Foundation());
+        }
+    }
+
+    isPlayable(card) {
+        // Can this card be played on a foundation?
+        // Returns indexes of foundations that it is playable on.
+        var playable = Array(this.#foundations.length).fill(false);
+
+        for (const [i, foundation] of Object.entries(this.#foundations)) {
+            playable[i] = foundation.isPlayable(card);
+        }
+
+        return playable;
+    }
+
+    full() {
+        for (const [i, foundation] of Object.entries(this.#foundations)) {
+            if (foundation.ncards() != SUIT_SIZE) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+class TableauColumn {
+    #facedown = new Deck();
+    #faceup = new Deck();
+
+    constructor() {
+    }
+
+    isPlayable(card) {
+        let topCard = topCard();
+        
+        if (card.color != topCard.color && card.number == topCard.number - 1) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    topCard() {
+        return this.#faceup.peek();
+    }
+}
+
+class Tableau {
+    #ncolumns = 5;
+    #columns = []
+
+    constructor() {
+        for (let i = 0; i < this.#ncolumns; ++i) {
+            this.#columns.push(new TableauColumn());
+        }
+    }
+
+    isPlayable(card) {
+        var playable = Array(this.#columns.length).fill(false);
+
+        for (const [i, column] of Object.entries(this.#columns)) {
+            playable[i] = column.isPlayable(card);
+        }
+
+        return playable;
+    }
+}
+
+class Game {    
+    constructor(drawRate) {
+        this.drawRate = drawRate;
+
+        this.drawPile = Deck.full(); // Cards
+        this.wastePile = new Deck(); // Cards
+        this.foundations = new Foundations(); // Where the aces stack upwards
+        this.tableau = new Tableau(); // Where you play solitaire
+    }
+
+    drawStep() {
+        var drawnCards = this.drawPile.take(this.drawRate);
+        this.wastePile.addToTop(drawnCards);
+    }
+
+    won() {
+        return this.foundations.full();
+    }
+}
+
+var game = new Game();
+
+function drawGame() {
+    ctx.beginPath();
+    ctx.arc(x, y + 20, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+
+onresize = (event) => {
+    setCanvasSize();
+};
+
+function setCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function init() {
+    setCanvasSize();
+}
+
+function drawCard(cardWidth) {
+    var cardHeight = cardImg.height / cardImg.width * cardWidth;
+    ctx.beginPath();
+    var cardX = canvas.width / 2 - cardWidth / 2;
+    var cardY = canvas.height / 2 - cardHeight / 2;
+    ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 5);
+    ctx.strokeStyle = "#ccc";
+    ctx.stroke();
+    ctx.drawImage(cardImg, cardX, cardY, cardWidth, cardHeight);
+    ctx.closePath();
+
+}
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawCard(100);
+    drawBall();
+    drawPaddle();
+    drawGame();
+    requestAnimationFrame(draw);
+}
+
+init();
+draw();
+
+/*
 // Listen to form submissions.
 newPeriodFormEl.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -71,4 +389,4 @@ function formatDate(dateString) {
 }
     
 renderPastPeriods();
-    
+*/

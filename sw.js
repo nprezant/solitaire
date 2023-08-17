@@ -10,7 +10,7 @@ const APP_STATIC_RESOURCES = [
   "/index.html",
   "/app.js",
   "/styles.css",
-  "/icons/wheel.svg",
+  "/icons/scalable.svg",
 ];
 
 // On install, cache the static resources
