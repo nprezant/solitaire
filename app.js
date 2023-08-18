@@ -245,12 +245,27 @@ class Deck {
    */
   static full() {
     const deck = new Deck();
+    deck.fill();
+    return deck;
+  }
+
+  /**
+   * Fills (or refills) the deck with 52 unshuffled cards.
+   */
+  fill() {
+    this.clear();
     for (const [suit] of Object.entries(Suits)) {
       for (let number = 1; number <= SUIT_SIZE; number++) {
-        deck.addToBottom(new Card(number, suit));
+        this.addToBottom(new Card(number, suit));
       }
     }
-    return deck;
+  }
+
+  /**
+   * Removes all cards from the deck
+   */
+  clear() {
+    this.#cards.length = 0;
   }
 
   /**
@@ -377,6 +392,13 @@ class Foundation {
   topCard() {
     return this.#cards.peek();
   }
+
+  /**
+   * Clears the cards from this foundation.
+   */
+  clear() {
+    this.#cards.clear();
+  }
 }
 
 /**
@@ -384,6 +406,11 @@ class Foundation {
  * At the top of the game board.
  */
 class Foundations {
+  /**
+   * A foundation for each suit.
+   * @type {Foundation[]}
+   * @public
+   */
   foundations = [];
 
   /**
@@ -422,6 +449,15 @@ class Foundations {
     }
     return true;
   }
+
+  /**
+   * Clears the underlying foundations.
+   */
+  clear() {
+    for (const foundation of this.foundations) {
+      foundation.clear();
+    }
+  }
 }
 
 /**
@@ -454,6 +490,13 @@ class TableauColumn {
   topCard() {
     return this.cards.peek();
   }
+
+  /**
+   * Clears the cards from this column.
+   */
+  clear() {
+    this.cards.clear();
+  }
 }
 
 /**
@@ -463,6 +506,12 @@ class TableauColumn {
  */
 class Tableau {
   #ncolumns = 5;
+
+  /**
+   * A playable column.
+   * @type {TableauColumn[]}
+   * @public
+   */
   columns = [];
 
   /**
@@ -488,6 +537,15 @@ class Tableau {
 
     return playable;
   }
+
+  /**
+   * Clears the underlying columns
+   */
+  clear() {
+    for (const column of this.columns) {
+      column.clear();
+    }
+  }
 }
 
 /**
@@ -501,7 +559,12 @@ class Game {
   constructor(drawRate) {
     this.drawRate = drawRate;
 
-    this.drawPile = Deck.full(); // Cards
+    /**
+     * The draw pile
+     * @type {Deck}
+     * @public
+     */
+    this.drawPile = new Deck();
     this.wastePile = new Deck(); // Cards
     this.foundations = new Foundations(); // Where the aces stack upwards
     this.tableau = new Tableau(); // Where you play solitaire
@@ -511,8 +574,19 @@ class Game {
    * Sets up a new game.
    */
   setup() {
-    const nColumns = this.tableau.columns.length;
+    // Draw pile
+    this.drawPile.fill();
+    this.drawPile.shuffle();
 
+    // Waste pile
+    this.wastePile.clear();
+
+    // Foundations
+    this.foundations.clear();
+
+    // Tableau
+    this.tableau.clear();
+    const nColumns = this.tableau.columns.length;
     for (let n = nColumns; n > 0; --n) {
       for (let j = 0; j < n; ++j) {
         const columnIndex = nColumns - j - 1;
@@ -561,8 +635,7 @@ const cardImages = new CardImageCache('simple');
  */
 function drawCardStack(deck, x, y) {
   const card = deck.peek();
-  const img = cardImages.getCardImage(card);
-  CardView.draw(x, y, img);
+  CardView.draw(x, y, card);
 }
 
 /**
