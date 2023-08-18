@@ -7,8 +7,8 @@
    viewBox="0 0 63.999995 89"
    version="1.1"
    id="svg1140"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   sodipodi:docname="heart-4.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   sodipodi:docname="hearts-4.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,8 +25,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="2.0157261"
-     inkscape:cx="213.07459"
-     inkscape:cy="170.90616"
+     inkscape:cx="213.07458"
+     inkscape:cy="171.15421"
      inkscape:window-width="1920"
      inkscape:window-height="1052"
      inkscape:window-x="0"
@@ -136,6 +136,13 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:#f9f9f9;stroke:#ff0000;stroke-width:0.899999;stroke-linecap:round;stroke-opacity:1"
+       id="rect1"
+       width="64"
+       height="89"
+       x="0"
+       y="0" />
     <g
        id="g1340"
        inkscape:path-effect="#path-effect1342"

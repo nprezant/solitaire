@@ -37,11 +37,37 @@ class CardImageCache {
   }
 
   /**
+   * Gets an image for a card.
+   * Handles undefined and card orientation (faceup/facedown)
+   * @param {Card} card
+   * @return {Image}
+   */
+  getCardImage(card) {
+    if (isUndefined(card)) {
+      return this.getBlank();
+    }
+
+    if (card.facedown) {
+      return this.getBack();
+    }
+
+    return this.getImage(card.suit, card.number);
+  }
+
+  /**
    * Gets the image for the back of a card.
    * @return {Image}
    */
   getBack() {
     return this.images.back;
+  }
+
+  /**
+   * Gets the image for a blank card (the lack of a card).
+   * @return {Image}
+   */
+  getBlank() {
+    return this.images.blank;
   }
 
   /**
@@ -81,12 +107,13 @@ class CardImageCache {
    * Loads all images for the theme.
    */
   load() {
-    // Card back image
+    // Special images
     this._setImage('back');
+    this._setImage('blank');
 
     // Number value images
     for (const [suit] of Object.entries(Suits)) {
-      for (let number = 0; number < SUIT_SIZE; ++number) {
+      for (let number = 1; number <= SUIT_SIZE; ++number) {
         const imageName = this._generateImageName(suit, number);
         this._setImage(imageName);
       }
@@ -130,6 +157,8 @@ function suitColor(suit) {
  * A playing card.
  */
 class Card {
+  #faceup;
+
   /**
    *
    * @param {number} number card number, 1-13
@@ -139,6 +168,45 @@ class Card {
     this.number = number;
     this.suit = suit;
     this.color = suitColor(suit);
+    this.#faceup = false;
+  }
+
+  /**
+   * Flips the card from faceup to facedown
+   * or facedown to faceup.
+   */
+  flip() {
+    this.#faceup = !this.#faceup;
+  }
+
+  /**
+   * True if the card is faceup
+   */
+  get faceup() {
+    return this.#faceup;
+  }
+
+  /**
+   * Sets the card to faceup or facedown.
+   * @param {boolean} value
+   */
+  set faceup(value) {
+    this.#faceup = value;
+  }
+
+  /**
+   * True if the card is facedown
+   */
+  get facedown() {
+    return !this.#faceup;
+  }
+
+  /**
+   * Sets the card to faceup or facedown.
+   * @param {boolean} value
+   */
+  set facedown(value) {
+    this.#faceup = !value;
   }
 }
 
@@ -178,11 +246,19 @@ class Deck {
   static full() {
     const deck = new Deck();
     for (const [suit] of Object.entries(Suits)) {
-      for (let number = 0; number < SUIT_SIZE; number++) {
+      for (let number = 1; number <= SUIT_SIZE; number++) {
         deck.addToBottom(new Card(number, suit));
       }
     }
     return deck;
+  }
+
+  /**
+   * Convenience iterator
+   * @return {Card}
+   */
+  [Symbol.iterator]() {
+    return this.#cards.values();
   }
 
   /**
@@ -193,9 +269,9 @@ class Deck {
   }
 
   /**
-   * Returns the first element in the array.
+   * Returns the top card.
    * Does not modify the deck.
-   * Undefined if the array is empty.
+   * Undefined if there are no cards.
    * @return {Card}
    */
   peek() {
@@ -277,6 +353,14 @@ class Foundation {
   ncards() {
     return this.#cards.length;
   }
+
+  /**
+   * The top (playable) card.
+   * @return {Card}
+   */
+  topCard() {
+    return this.#cards.peek();
+  }
 }
 
 /**
@@ -284,14 +368,14 @@ class Foundation {
  * At the top of the game board.
  */
 class Foundations {
-  #foundations = [];
+  foundations = [];
 
   /**
    * Initializer.
    */
   constructor() {
     for (const [,] of Object.entries(Suits)) {
-      this.#foundations.push(new Foundation());
+      this.foundations.push(new Foundation());
     }
   }
 
@@ -301,9 +385,9 @@ class Foundations {
    * @return {boolean[]} true/false mask of playable foundations.
    */
   isPlayable(card) {
-    const playable = Array(this.#foundations.length).fill(false);
+    const playable = Array(this.foundations.length).fill(false);
 
-    for (const [i, foundation] of Object.entries(this.#foundations)) {
+    for (const [i, foundation] of Object.entries(this.foundations)) {
       playable[i] = foundation.isPlayable(card);
     }
 
@@ -315,7 +399,7 @@ class Foundations {
    * @return {boolean} true if the foundations are full.
    */
   full() {
-    for (const [, foundation] of Object.entries(this.#foundations)) {
+    for (const [, foundation] of Object.entries(this.foundations)) {
       if (foundation.ncards() !== SUIT_SIZE) {
         return false;
       }
@@ -328,8 +412,7 @@ class Foundations {
  * A single column of the tableau.
  */
 class TableauColumn {
-  #facedown = new Deck();
-  #faceup = new Deck();
+  cards = new Deck();
 
   /**
    * Whether or not a card can be played on this column
@@ -353,7 +436,7 @@ class TableauColumn {
    * @return {Card}
    */
   topCard() {
-    return this.#faceup.peek();
+    return this.cards.peek();
   }
 }
 
@@ -364,14 +447,14 @@ class TableauColumn {
  */
 class Tableau {
   #ncolumns = 5;
-  #columns = [];
+  columns = [];
 
   /**
    * Initializer
    */
   constructor() {
     for (let i = 0; i < this.#ncolumns; ++i) {
-      this.#columns.push(new TableauColumn());
+      this.columns.push(new TableauColumn());
     }
   }
 
@@ -381,9 +464,9 @@ class Tableau {
    * @return {boolean[]} true/false mask of playable columns.
    */
   isPlayable(card) {
-    const playable = Array(this.#columns.length).fill(false);
+    const playable = Array(this.columns.length).fill(false);
 
-    for (const [i, column] of Object.entries(this.#columns)) {
+    for (const [i, column] of Object.entries(this.columns)) {
       playable[i] = column.isPlayable(card);
     }
 
@@ -432,34 +515,72 @@ class Game {
 const game = new Game();
 const cardImages = new CardImageCache('simple');
 
-const sampleCard = new Card(4, Suits.hearts);
+// const sampleCard = new Card(4, Suits.hearts);
 
 /**
- * Draws the draw pile on the game board.
+ * Draws a stack of cards.
+ * @param {Deck} deck cards in the draw pile
+ * @param {number} x
+ * @param {number} y
  */
-function drawDrawPile() {
-  CardView.draw(300, 50, sampleCard);
-}
-
-/**
- * Draws the waste pile on the game board.
- */
-function drawWastePile() {
-  CardView.draw(200, 50, sampleCard);
+function drawCardStack(deck, x, y) {
+  const card = deck.peek();
+  const img = cardImages.getCardImage(card);
+  CardView.draw(x, y, img);
 }
 
 /**
  * Draws the foundation portion of the game board.
+ * @param {Foundations} foundations
+ * @param {number} x
+ * @param {number} y
  */
-function drawFoundations() {
-  CardView.draw(50, 50, sampleCard);
+function drawFoundations(foundations, x, y) {
+  for (const foundation of foundations.foundations) {
+    drawFoundation(foundation, x, y);
+    x += CardView.width;
+  }
+}
+
+/**
+ * Draws the foundation portion of the game board.
+ * @param {Foundation} foundation
+ * @param {number} x
+ * @param {number} y
+ */
+function drawFoundation(foundation, x, y) {
+  const card = foundation.topCard();
+  CardView.draw(x, y, card);
 }
 
 /**
  * Draws the tableau portion of the game board.
+ * @param {Tableau} tableau
+ * @param {number} x
+ * @param {number} y
  */
-function drawTableau() {
-  CardView.draw(500, 200, sampleCard);
+function drawTableau(tableau, x, y) {
+  for (const column of tableau.columns) {
+    drawTableauColumn(column, x, y);
+    x += CardView.width;
+  }
+}
+
+/**
+ * Draws a single tableau column
+ * @param {TableauColumn} tableauColumn
+ * @param {number} x
+ * @param {number} y
+ */
+function drawTableauColumn(tableauColumn, x, y) {
+  for (const card of tableauColumn.cards) {
+    CardView.draw(x, y, card);
+    y += 5;
+  }
+
+  if (tableauColumn.cards.empty()) {
+    CardView.draw(x, y, undefined);
+  }
 }
 
 /**
@@ -470,10 +591,35 @@ function drawGame() {
     console.log('we won');
   }
 
-  drawDrawPile();
-  drawWastePile();
-  drawFoundations();
-  drawTableau();
+  // const w = canvas.width;
+  // const h = canvas.height;
+
+  const marginX = 20;
+  const marginY = 10;
+
+  const foundationTop = 20;
+  const tableauTop = foundationTop + CardView.height + marginY;
+
+  const foundationLeft = 20;
+  const tableauLeft = foundationLeft;
+
+  const drawPileTop = foundationTop;
+  const wastePileTop = foundationTop;
+
+  const wastePileLeft = foundationLeft + (CardView.width + marginX) * 5;
+  const drawPileLeft = foundationLeft + (CardView.width + marginX) * 6;
+
+  // Draw pile
+  drawCardStack(game.drawPile, drawPileLeft, drawPileTop);
+
+  // Waste pile
+  drawCardStack(game.wastePile, wastePileLeft, wastePileTop);
+
+  // Foundations
+  drawFoundations(game.foundations, foundationLeft, foundationTop);
+
+  // Tableau
+  drawTableau(game.tableau, tableauLeft, tableauTop);
 }
 
 /**
@@ -482,7 +628,6 @@ function drawGame() {
 class CardView {
   static width = 50;
   static height = this.width * 89 / 59;
-  static cornerRadius = 5;
 
   /**
    * Draws a card.
@@ -492,11 +637,9 @@ class CardView {
    */
   static draw(x, y, card) {
     ctx.beginPath();
-    ctx.roundRect(x, y, this.width, this.height, this.cornerRadius);
-    ctx.strokeStyle = '#ccc';
-    ctx.stroke();
 
-    const img = cardImages.getImage(card.suit, card.number);
+    const img = cardImages.getCardImage(card);
+
     ctx.drawImage(img, x, y, this.width, this.height);
     ctx.closePath();
   }
