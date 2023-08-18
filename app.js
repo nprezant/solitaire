@@ -77,7 +77,7 @@ class CardImageCache {
    * @return {string}
    */
   _generateImageName(_suit, _number) {
-    return 'hearts-4';
+    return 'hearts-' + _number;
     // return suit + '-' + number // TODO uncomment when we have all the images
   }
 
