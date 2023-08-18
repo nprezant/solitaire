@@ -3,58 +3,71 @@ const ctx = canvas.getContext('2d')
 
 // const STORAGE_KEY = 'solitaire'
 
-// const cardWidth = 64
-// const cardHeight = 89
-
 // const DECK_SIZE = 52
 const SUIT_SIZE = 13
 
-const cardImg = new Image()
-cardImg.src = 'img/cards/simple/heart-4.svg'
+// const cardImg = new Image()
+// cardImg.src = 'img/cards/simple/hearts-4.svg'
 
-const ballRadius = 10
-const x = canvas.width / 2
-const y = canvas.height - 30
-// var dx = 2;
-// var dy = -2;
-const paddleHeight = 10
-const paddleWidth = 75
-const paddleX = (canvas.width - paddleWidth) / 2
-// var rightPressed = false;
-// var leftPressed = false;
-// var brickRowCount = 5;
-// var brickColumnCount = 3;
-// var brickWidth = 75;
-// var brickHeight = 20;
-// var brickPadding = 10;
-// var brickOffsetTop = 30;
-// var brickOffsetLeft = 30;
-// var score = 0;
-// var lives = 3;
+// const backImage = new Image()
+// backImage.src = 'img/cards/simple/back.svg'
 
-// class CardView {
-//   width = 20
-//   height = this.width * 89 / 59
-//   constructor (type) {
-//     this.type = type
-//   }
+// ---------------------
+// Images
+// ---------------------
 
-//   draw (x, y) {
-//     ctx.beginPath()
-//     ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 5)
-//     ctx.strokeStyle = '#ccc'
-//     ctx.stroke()
-//     ctx.drawImage(cardImg, cardX, cardY, cardWidth, cardHeight)
-//     ctx.closePath()
-//   }
-// }
+class CardImageCache {
+  images = {}
 
-// const Suits = Object.freeze({
-//     SPADES:   Symbol("spades"),
-//     HEARTS:   Symbol("hearts"),
-//     CLUBS:    Symbol("clubs"),
-//     DIAMONDS: Symbol("diamonds")
-// });
+  constructor (theme) {
+    this.theme = theme
+    this.load()
+  }
+
+  getImage (suit, number) {
+    const imageName = this._generateImageName(suit, number)
+    return this.images[imageName]
+  }
+
+  getBack () {
+    return this.images.back
+  }
+
+  _generateImageName (suit, number) {
+    return 'hearts-4'
+    // return suit + '-' + number // TODO uncomment when we have all the images
+  }
+
+  _generateImagePath (name) {
+    return 'img/cards/' + this.theme + '/' + name + '.svg'
+  }
+
+  _setImage (name) {
+    if (isUndefined(this.images[name])) {
+      this.images[name] = new Image()
+    }
+
+    const imagePath = this._generateImagePath(name)
+    this.images[name].src = imagePath
+  }
+
+  load () {
+    // Card back image
+    this._setImage('back')
+
+    // Number value images
+    for (const [suit] of Object.entries(Suits)) {
+      for (let number = 0; number < SUIT_SIZE; ++number) {
+        const imageName = this._generateImageName(suit, number)
+        this._setImage(imageName)
+      }
+    }
+  }
+}
+
+// ---------------------
+// Game logic
+// ---------------------
 
 function makeEnum (arr) {
   const obj = Object.create(null)
@@ -253,17 +266,57 @@ class Game {
   }
 }
 
+// ---------------------
+// UI
+// ---------------------
+
 const game = new Game()
+const cardImages = new CardImageCache('simple')
+
+const sampleCard = new Card(4, Suits.hearts)
+
+function drawDrawPile () {
+  CardView.draw(300, 50, sampleCard)
+}
+
+function drawWastePile () {
+  CardView.draw(200, 50, sampleCard)
+}
+
+function drawFoundations () {
+  CardView.draw(50, 50, sampleCard)
+}
+
+function drawTableau () {
+  CardView.draw(500, 200, sampleCard)
+}
 
 function drawGame () {
   if (game.won()) {
     console.log('we won')
   }
-  ctx.beginPath()
-  ctx.arc(x, y + 20, ballRadius, 0, Math.PI * 2)
-  ctx.fillStyle = '#0095DD'
-  ctx.fill()
-  ctx.closePath()
+
+  drawDrawPile()
+  drawWastePile()
+  drawFoundations()
+  drawTableau()
+}
+
+class CardView {
+  static width = 50
+  static height = this.width * 89 / 59
+  static cornerRadius = 5
+
+  static draw (x, y, card) {
+    ctx.beginPath()
+    ctx.roundRect(x, y, this.width, this.height, this.cornerRadius)
+    ctx.strokeStyle = '#ccc'
+    ctx.stroke()
+
+    const img = cardImages.getImage(card.suit, card.number)
+    ctx.drawImage(img, x, y, this.width, this.height)
+    ctx.closePath()
+  }
 }
 
 onresize = (event) => {
@@ -279,37 +332,8 @@ function init () {
   setCanvasSize()
 }
 
-function drawCard (cardWidth) {
-  const cardHeight = cardImg.height / cardImg.width * cardWidth
-  ctx.beginPath()
-  const cardX = canvas.width / 2 - cardWidth / 2
-  const cardY = canvas.height / 2 - cardHeight / 2
-  ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 5)
-  ctx.strokeStyle = '#ccc'
-  ctx.stroke()
-  ctx.drawImage(cardImg, cardX, cardY, cardWidth, cardHeight)
-  ctx.closePath()
-}
-function drawBall () {
-  ctx.beginPath()
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2)
-  ctx.fillStyle = '#0095DD'
-  ctx.fill()
-  ctx.closePath()
-}
-function drawPaddle () {
-  ctx.beginPath()
-  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight)
-  ctx.fillStyle = '#0095DD'
-  ctx.fill()
-  ctx.closePath()
-}
-
 function draw () {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  drawCard(100)
-  drawBall()
-  drawPaddle()
   drawGame()
   requestAnimationFrame(draw)
 }
