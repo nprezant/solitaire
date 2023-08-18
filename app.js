@@ -283,7 +283,7 @@ class Deck {
    * @param {number} nCards
    * @return {Card[]} cards taken out of this deck
    */
-  take(nCards) {
+  take(nCards = 1) {
     const taken = [];
     for (let i = 0; i < nCards; ++i) {
       taken.push(this.#cards.shift());
@@ -315,6 +315,22 @@ class Deck {
    */
   empty() {
     return this.#cards.length === 0;
+  }
+
+  /**
+   * Number of cards in this deck.
+   */
+  get length() {
+    return this.#cards.length;
+  }
+
+  /**
+   * Allows access to individual cards.
+   * @param {number} index between 0 and length
+   * @return {Card|undefined}
+   */
+  at(index) {
+    return this.#cards[index];
   }
 }
 
@@ -492,6 +508,24 @@ class Game {
   }
 
   /**
+   * Sets up a new game.
+   */
+  setup() {
+    const nColumns = this.tableau.columns.length;
+
+    for (let n = nColumns; n > 0; --n) {
+      for (let j = 0; j < n; ++j) {
+        const columnIndex = nColumns - j - 1;
+        const card = this.drawPile.take()[0];
+        if (j === n - 1) {
+          card.faceup = true;
+        }
+        this.tableau.columns[columnIndex].cards.addToTop(card);
+      }
+    }
+  }
+
+  /**
    * Perform the draw step of solitaire.
    */
   drawStep() {
@@ -513,6 +547,8 @@ class Game {
 // ---------------------
 
 const game = new Game();
+game.setup();
+
 const cardImages = new CardImageCache('simple');
 
 // const sampleCard = new Card(4, Suits.hearts);
@@ -538,7 +574,7 @@ function drawCardStack(deck, x, y) {
 function drawFoundations(foundations, x, y) {
   for (const foundation of foundations.foundations) {
     drawFoundation(foundation, x, y);
-    x += CardView.width;
+    x += CardView.bbox.w;
   }
 }
 
@@ -562,7 +598,7 @@ function drawFoundation(foundation, x, y) {
 function drawTableau(tableau, x, y) {
   for (const column of tableau.columns) {
     drawTableauColumn(column, x, y);
-    x += CardView.width;
+    x += CardView.bbox.w;
   }
 }
 
@@ -573,9 +609,11 @@ function drawTableau(tableau, x, y) {
  * @param {number} y
  */
 function drawTableauColumn(tableauColumn, x, y) {
-  for (const card of tableauColumn.cards) {
+  const nCards = tableauColumn.cards.length;
+  for (let i = nCards - 1; i >= 0; --i) {
+    const card = tableauColumn.cards.at(i);
     CardView.draw(x, y, card);
-    y += 5;
+    y += CardView.cascadeY;
   }
 
   if (tableauColumn.cards.empty()) {
@@ -594,11 +632,8 @@ function drawGame() {
   // const w = canvas.width;
   // const h = canvas.height;
 
-  const marginX = 20;
-  const marginY = 10;
-
   const foundationTop = 20;
-  const tableauTop = foundationTop + CardView.height + marginY;
+  const tableauTop = foundationTop + CardView.bbox.h;
 
   const foundationLeft = 20;
   const tableauLeft = foundationLeft;
@@ -606,8 +641,8 @@ function drawGame() {
   const drawPileTop = foundationTop;
   const wastePileTop = foundationTop;
 
-  const wastePileLeft = foundationLeft + (CardView.width + marginX) * 5;
-  const drawPileLeft = foundationLeft + (CardView.width + marginX) * 6;
+  const wastePileLeft = foundationLeft + CardView.bbox.w * 5;
+  const drawPileLeft = foundationLeft + CardView.bbox.w * 6;
 
   // Draw pile
   drawCardStack(game.drawPile, drawPileLeft, drawPileTop);
@@ -623,11 +658,44 @@ function drawGame() {
 }
 
 /**
+ * Graphical primitive bounding box
+ */
+class BBox {
+  /**
+   * Initializer
+   * @param {number} x
+   * @param {number} y
+   * @param {number} w
+   * @param {number} h
+   */
+  constructor(x, y, w, h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
+}
+
+/**
  * A view of a card.
  */
 class CardView {
+  static #mmWidth = 59; // Official width in mm
+  static #mmHeight = 89; // Official height in mm
+
   static width = 50;
-  static height = this.width * 89 / 59;
+  static height = this.width * this.#mmHeight / this.#mmWidth;
+
+  static marginX = 10;
+  static marginY = 5;
+
+  static cascadeY = 5;
+
+  static bbox = new BBox(
+      0,
+      0,
+      this.width + this.marginX * 2,
+      this.height + this.marginY * 2);
 
   /**
    * Draws a card.
