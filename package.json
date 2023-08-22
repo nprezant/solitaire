@@ -1,0 +1,16 @@
+{
+  "name": "solitaire",
+  "version": "1.0.0",
+  "description": "A PWA for playing solitaire",
+  "main": "app.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Noah Prezant",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}
