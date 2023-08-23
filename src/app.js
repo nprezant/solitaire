@@ -1,3 +1,5 @@
+// import './style.css';
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -9,6 +11,17 @@ const SUIT_SIZE = 13;
 // ---------------------
 // Images
 // ---------------------
+
+/**
+ * abc
+ * @param {Context} r
+ * @return {thing}
+ */
+// function importAll(r) {
+//   return r.keys().map(r);
+// }
+
+// const images = importAll(require.context('./img/cards/simple/', false, /\.(png|jpe?g|svg)$/));
 
 /**
  * Manages card images (fronts and backs)
