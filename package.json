@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run copy && cp -t ./dist/ ./src/app.js",
+    "build": "npm run copy && tsc --outfile ./dist/app.js ./src/app.ts",
     "copy": "mkdir -p dist && cp -t ./dist/ ./src/index.html ./src/style.css ./src/sw.js ./src/manifest.json -r ./src/icons/ -r ./src/img/",
     "start": "http-server dist"
   },

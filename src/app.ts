@@ -1,7 +1,12 @@
 // import './style.css';
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+function throwExpression(errorMessage: string): never {
+  throw new Error(errorMessage);
+}
+
+const canvas: any = document.getElementById('canvas'); // Should be HTMLCanvasElement
+const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!;
+
 
 // const STORAGE_KEY = 'solitaire'
 
@@ -13,38 +18,21 @@ const SUIT_SIZE = 13;
 // ---------------------
 
 /**
- * abc
- * @param {Context} r
- * @return {thing}
- */
-// function importAll(r) {
-//   return r.keys().map(r);
-// }
-
-// const images = importAll(require.context('./img/cards/simple/', false, /\.(png|jpe?g|svg)$/));
-
-/**
  * Manages card images (fronts and backs)
  */
 class CardImageCache {
-  images = {};
+  images: { [id: string] : HTMLImageElement; } = {};
+  theme: string;
 
-  /**
-   * Creates a card image cache for a theme.
-   * @param {string} theme
-   */
-  constructor(theme) {
+  constructor(theme: string) {
     this.theme = theme;
     this.load();
   }
 
   /**
    * Gets the image for a particular suite and number.
-   * @param {string} suit
-   * @param {integer} number
-   * @return {Image}
    */
-  getImage(suit, number) {
+  getImage(suit: string, number: number) {
     const imageName = this._generateImageName(suit, number);
     return this.images[imageName];
   }
@@ -52,11 +40,9 @@ class CardImageCache {
   /**
    * Gets an image for a card.
    * Handles undefined and card orientation (faceup/facedown)
-   * @param {Card} card
-   * @return {Image}
    */
-  getCardImage(card) {
-    if (isUndefined(card)) {
+  getCardImage(card: Card | undefined) {
+    if (card === undefined) {
       return this.getBlank();
     }
 
@@ -69,7 +55,6 @@ class CardImageCache {
 
   /**
    * Gets the image for the back of a card.
-   * @return {Image}
    */
   getBack() {
     return this.images.back;
@@ -77,7 +62,6 @@ class CardImageCache {
 
   /**
    * Gets the image for a blank card (the lack of a card).
-   * @return {Image}
    */
   getBlank() {
     return this.images.blank;
@@ -85,21 +69,17 @@ class CardImageCache {
 
   /**
    * Generates the image name as stored on disk.
-   * @param {string} _suit
-   * @param {string} _number
-   * @return {string}
    */
-  _generateImageName(_suit, _number) {
-    return 'hearts-' + _number;
+  _generateImageName(_suit: string, number: number) {
+    return 'hearts-' + number;
     // return suit + '-' + number // TODO uncomment when we have all the images
   }
 
   /**
    * Generates the path of an image in the current theme.
    * @param {string} name no extension
-   * @return {string}
    */
-  _generateImagePath(name) {
+  _generateImagePath(name: string) {
     return 'img/cards/' + this.theme + '/' + name + '.svg';
   }
 
@@ -107,7 +87,7 @@ class CardImageCache {
    * Sets the image with a particular name to the current theme.
    * @param {string} name no extension
    */
-  _setImage(name) {
+  _setImage(name: string): void {
     if (isUndefined(this.images[name])) {
       this.images[name] = new Image();
     }
@@ -125,7 +105,7 @@ class CardImageCache {
     this._setImage('blank');
 
     // Number value images
-    for (const [suit] of Object.entries(Suits)) {
+    for (const [suit] of Object.entries(Suit)) {
       for (let number = 1; number <= SUIT_SIZE; ++number) {
         const imageName = this._generateImageName(suit, number);
         this._setImage(imageName);
@@ -138,50 +118,46 @@ class CardImageCache {
 // Game logic
 // ---------------------
 
-/**
- * Generates a type that acts a bit like an enum.
- * @param {string[]} arr enum names
- * @return {enum}
- */
-function makeEnum(arr) {
-  const obj = Object.create(null);
-  for (const val of arr) {
-    obj[val] = Symbol(val);
-  }
-  return Object.freeze(obj);
+enum Suit {
+  Spades = "spades",
+  Hearts = "hearts",
+  Clubs = "clubs",
+  Diamonds = "diamonds",
 }
 
-const Suits = makeEnum(['spades', 'hearts', 'clubs', 'diamonds']);
-const Colors = makeEnum(['red', 'black']);
+enum Color {
+  Red,
+  Black,
+}
 
 /**
  * Gets the color of a suite.
- * @param {symbol} suit from the suits enum
- * @return {symbol} red or black enum color
  */
-function suitColor(suit) {
-  if (suit === Suits.spades || suit === Suits.clubs) {
-    return Colors.black;
+function suitColor(suit: Suit) {
+  if (suit === Suit.Spades || suit === Suit.Clubs) {
+    return Color.Black;
   }
-  return Colors.red;
+  return Color.Red;
 }
 
 /**
  * A playing card.
  */
 class Card {
-  #faceup;
+  _faceup: boolean;
+  number: any;
+  suit: any;
+  color: any;
 
   /**
    *
    * @param {number} number card number, 1-13
-   * @param {symbol} suit
    */
-  constructor(number, suit) {
+  constructor(number: number, suit: Suit) {
     this.number = number;
     this.suit = suit;
     this.color = suitColor(suit);
-    this.#faceup = false;
+    this._faceup = false;
   }
 
   /**
@@ -189,45 +165,42 @@ class Card {
    * or facedown to faceup.
    */
   flip() {
-    this.#faceup = !this.#faceup;
+    this._faceup = !this._faceup;
   }
 
   /**
    * True if the card is faceup
    */
   get faceup() {
-    return this.#faceup;
+    return this._faceup;
   }
 
   /**
    * Sets the card to faceup or facedown.
-   * @param {boolean} value
    */
-  set faceup(value) {
-    this.#faceup = value;
+  set faceup(value: boolean) {
+    this._faceup = value;
   }
 
   /**
    * True if the card is facedown
    */
   get facedown() {
-    return !this.#faceup;
+    return !this._faceup;
   }
 
   /**
    * Sets the card to faceup or facedown.
-   * @param {boolean} value
    */
-  set facedown(value) {
-    this.#faceup = !value;
+  set facedown(value: boolean) {
+    this._faceup = !value;
   }
 }
 
 /**
  * Algorithm to shuffle an arbitrary array.
- * @param {array} array any array
  */
-function shuffleArray(array) {
+function shuffleArray(array: any[]) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -236,10 +209,8 @@ function shuffleArray(array) {
 
 /**
  * Conveneince for checking if a value is undefined.
- * @param {any} x any value
- * @return {boolean}
  */
-function isUndefined(x) {
+function isUndefined(x: any) {
   return typeof x === 'undefined';
 }
 
@@ -249,12 +220,11 @@ function isUndefined(x) {
  * Supports adding, removing, peeking, shuffling.
  */
 class Deck {
-  #cards = [];
+  cards: Card[] = [];
 
   /**
    * Static constructor for a full deck of 52 cards.
    * Unshuffled.
-   * @return {Deck}
    */
   static full() {
     const deck = new Deck();
@@ -267,9 +237,9 @@ class Deck {
    */
   fill() {
     this.clear();
-    for (const [suit] of Object.entries(Suits)) {
+    for (const [key, value] of Object.entries(Suit)) {
       for (let number = 1; number <= SUIT_SIZE; number++) {
-        this.addToBottom(new Card(number, suit));
+        this.addToBottom(new Card(number, value));
       }
     }
   }
@@ -278,7 +248,7 @@ class Deck {
    * Removes all cards from the deck
    */
   clear() {
-    this.#cards.length = 0;
+    this.cards.length = 0;
   }
 
   /**
@@ -286,14 +256,14 @@ class Deck {
    * @return {Card}
    */
   [Symbol.iterator]() {
-    return this.#cards.values();
+    return this.cards.values();
   }
 
   /**
    * Shuffles the deck.
    */
   shuffle() {
-    shuffleArray(this.#cards);
+    shuffleArray(this.cards);
   }
 
   /**
@@ -302,63 +272,61 @@ class Deck {
    * Undefined if there are no cards.
    * @return {Card}
    */
-  peek() {
-    return this.#cards[0];
+  peek(): Card {
+    return this.cards[0];
   }
 
   /**
    * Takes cards from the top of the deck.
-   * @param {number} nCards
    * @return {Card[]} cards taken out of this deck
    */
-  take(nCards = 1) {
+  take(nCards = 1): Card[] {
     const taken = [];
+
     for (let i = 0; i < nCards; ++i) {
-      taken.push(this.#cards.shift());
+      const took = this.cards.shift();
+      if (took) { // When we run out of cards we will get undefined values.
+        taken.push(took);
+      }
     }
-    // When we run out of cards we will get undefined values.
-    taken.filter((x) => isUndefined(x));
+
     return taken;
   }
 
   /**
    * Add cards to the bottom of the deck.
-   * @param {Card[]} cards
    */
-  addToBottom(cards) {
-    this.#cards.push(cards);
+  addToBottom(...cards: Card[]) {
+    this.cards.push(...cards);
   }
 
   /**
    * Add cards to the top of the deck.
-   * @param {Card[]} cards
    */
-  addToTop(cards) {
-    this.#cards.unshift(cards);
+  addToTop(...cards: Card[]) {
+    this.cards.unshift(...cards);
   }
 
   /**
    * True if there are no cards in the deck.
-   * @return {boolean}
    */
   empty() {
-    return this.#cards.length === 0;
+    return this.cards.length === 0;
   }
 
   /**
    * Number of cards in this deck.
    */
   get length() {
-    return this.#cards.length;
+    return this.cards.length;
   }
 
   /**
    * Allows access to individual cards.
    * @param {number} index between 0 and length
-   * @return {Card|undefined}
    */
-  at(index) {
-    return this.#cards[index];
+  at(index: number): Card | undefined {
+    return this.cards[index];
   }
 }
 
@@ -368,15 +336,13 @@ class Deck {
  * that starts with an Ace and builds upwards.
  */
 class Foundation {
-  #cards = new Deck();
+  cards = new Deck();
 
   /**
    * Whether or not a card is playable on this foundation.
-   * @param {Card} card card to test
-   * @return {boolean}
    */
-  isPlayable(card) {
-    const topCard = this.#cards.peek();
+  isPlayable(card: Card) {
+    const topCard = this.cards.peek();
 
     if (isUndefined(topCard) && card.number === 1) {
       // Ace
@@ -394,23 +360,23 @@ class Foundation {
    * Number of cards in the stack.
    * @return {number}
    */
-  ncards() {
-    return this.#cards.length;
+  ncards(): number {
+    return this.cards.length;
   }
 
   /**
    * The top (playable) card.
    * @return {Card}
    */
-  topCard() {
-    return this.#cards.peek();
+  topCard(): Card {
+    return this.cards.peek();
   }
 
   /**
    * Clears the cards from this foundation.
    */
   clear() {
-    this.#cards.clear();
+    this.cards.clear();
   }
 }
 
@@ -421,16 +387,14 @@ class Foundation {
 class Foundations {
   /**
    * A foundation for each suit.
-   * @type {Foundation[]}
-   * @public
    */
-  foundations = [];
+  foundations: Foundation[] = [];
 
   /**
    * Initializer.
    */
   constructor() {
-    for (const [,] of Object.entries(Suits)) {
+    for (const [,] of Object.entries(Suit)) {
       this.foundations.push(new Foundation());
     }
   }
@@ -440,11 +404,11 @@ class Foundations {
    * @param {Card} card card to test
    * @return {boolean[]} true/false mask of playable foundations.
    */
-  isPlayable(card) {
-    const playable = Array(this.foundations.length).fill(false);
+  isPlayable(card: Card): boolean[] {
+    const playable: boolean[] = Array(this.foundations.length).fill(false);
 
     for (const [i, foundation] of Object.entries(this.foundations)) {
-      playable[i] = foundation.isPlayable(card);
+      playable[Number(i)] = foundation.isPlayable(card);
     }
 
     return playable;
@@ -454,7 +418,7 @@ class Foundations {
    * Tests whether the foundations are full.
    * @return {boolean} true if the foundations are full.
    */
-  full() {
+  full(): boolean {
     for (const [, foundation] of Object.entries(this.foundations)) {
       if (foundation.ncards() !== SUIT_SIZE) {
         return false;
@@ -482,9 +446,8 @@ class TableauColumn {
   /**
    * Whether or not a card can be played on this column
    * @param {Card} card card to test
-   * @return {boolean}
    */
-  isPlayable(card) {
+  isPlayable(card: Card) {
     const topCard = this.topCard();
 
     if (card.color !== topCard.color && card.number === topCard.number - 1) {
@@ -500,7 +463,7 @@ class TableauColumn {
    * of the opposite color played on it.
    * @return {Card}
    */
-  topCard() {
+  topCard(): Card {
     return this.cards.peek();
   }
 
@@ -518,20 +481,18 @@ class TableauColumn {
  * Cards are played downwards in alternating colors.
  */
 class Tableau {
-  #ncolumns = 5;
+  ncolumns = 5;
 
   /**
    * A playable column.
-   * @type {TableauColumn[]}
-   * @public
    */
-  columns = [];
+  columns: TableauColumn[] = [];
 
   /**
    * Initializer
    */
   constructor() {
-    for (let i = 0; i < this.#ncolumns; ++i) {
+    for (let i = 0; i < this.ncolumns; ++i) {
       this.columns.push(new TableauColumn());
     }
   }
@@ -541,11 +502,11 @@ class Tableau {
    * @param {Card} card card to test
    * @return {boolean[]} true/false mask of playable columns.
    */
-  isPlayable(card) {
+  isPlayable(card: Card): boolean[] {
     const playable = Array(this.columns.length).fill(false);
 
     for (const [i, column] of Object.entries(this.columns)) {
-      playable[i] = column.isPlayable(card);
+      playable[Number(i)] = column.isPlayable(card);
     }
 
     return playable;
@@ -565,11 +526,16 @@ class Tableau {
  * The main solitaire game.
  */
 class Game {
+  drawRate: any;
+  drawPile: Deck;
+  wastePile: Deck;
+  foundations: Foundations;
+  tableau: Tableau;
   /**
    * Initializer
    * @param {number} drawRate how many cards to draw at a time.
    */
-  constructor(drawRate) {
+  constructor(drawRate: number) {
     this.drawRate = drawRate;
 
     /**
@@ -604,6 +570,8 @@ class Game {
       for (let j = 0; j < n; ++j) {
         const columnIndex = nColumns - j - 1;
         const card = this.drawPile.take()[0];
+        if (card == null)
+          throw new Error("Cannot setup board. Not enough cards.");
         if (j === n - 1) {
           card.faceup = true;
         }
@@ -617,14 +585,14 @@ class Game {
    */
   drawStep() {
     const drawnCards = this.drawPile.take(this.drawRate);
-    this.wastePile.addToTop(drawnCards);
+    this.wastePile.addToTop(...drawnCards);
   }
 
   /**
    * Whether the win condition has been met.
    * @return {boolean}
    */
-  won() {
+  won(): boolean {
     return this.foundations.full();
   }
 }
@@ -633,7 +601,8 @@ class Game {
 // UI
 // ---------------------
 
-const game = new Game();
+const startDrawRate = 3;
+const game = new Game(startDrawRate);
 game.setup();
 
 const cardImages = new CardImageCache('simple');
@@ -643,21 +612,16 @@ const cardImages = new CardImageCache('simple');
 /**
  * Draws a stack of cards.
  * @param {Deck} deck cards in the draw pile
- * @param {number} x
- * @param {number} y
  */
-function drawCardStack(deck, x, y) {
+function drawCardStack(deck: Deck, x: number, y: number) {
   const card = deck.peek();
   CardView.draw(x, y, card);
 }
 
 /**
  * Draws the foundation portion of the game board.
- * @param {Foundations} foundations
- * @param {number} x
- * @param {number} y
  */
-function drawFoundations(foundations, x, y) {
+function drawFoundations(foundations: Foundations, x: number, y: number) {
   for (const foundation of foundations.foundations) {
     drawFoundation(foundation, x, y);
     x += CardView.bbox.w;
@@ -666,22 +630,16 @@ function drawFoundations(foundations, x, y) {
 
 /**
  * Draws the foundation portion of the game board.
- * @param {Foundation} foundation
- * @param {number} x
- * @param {number} y
  */
-function drawFoundation(foundation, x, y) {
+function drawFoundation(foundation: Foundation, x: number, y: number) {
   const card = foundation.topCard();
   CardView.draw(x, y, card);
 }
 
 /**
  * Draws the tableau portion of the game board.
- * @param {Tableau} tableau
- * @param {number} x
- * @param {number} y
  */
-function drawTableau(tableau, x, y) {
+function drawTableau(tableau: Tableau, x: number, y: number) {
   for (const column of tableau.columns) {
     drawTableauColumn(column, x, y);
     x += CardView.bbox.w;
@@ -690,14 +648,11 @@ function drawTableau(tableau, x, y) {
 
 /**
  * Draws a single tableau column
- * @param {TableauColumn} tableauColumn
- * @param {number} x
- * @param {number} y
  */
-function drawTableauColumn(tableauColumn, x, y) {
+function drawTableauColumn(tableauColumn: TableauColumn, x: number, y: number) {
   const nCards = tableauColumn.cards.length;
   for (let i = nCards - 1; i >= 0; --i) {
-    const card = tableauColumn.cards.at(i);
+    const card = tableauColumn.cards.at(i) ?? throwExpression("Card does not exist.");
     CardView.draw(x, y, card);
     y += CardView.cascadeY;
   }
@@ -747,14 +702,13 @@ function drawGame() {
  * Graphical primitive bounding box
  */
 class BBox {
-  /**
-   * Initializer
-   * @param {number} x
-   * @param {number} y
-   * @param {number} w
-   * @param {number} h
-   */
-  constructor(x, y, w, h) {
+  w: any;
+  h: number;
+  x: any;
+  y: any;
+
+  
+  constructor(x: number, y: number, w: number, h: number) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -766,11 +720,11 @@ class BBox {
  * A view of a card.
  */
 class CardView {
-  static #mmWidth = 59; // Official width in mm
-  static #mmHeight = 89; // Official height in mm
+  static mmWidth = 59; // Official width in mm
+  static mmHeight = 89; // Official height in mm
 
   static width = 50;
-  static height = this.width * this.#mmHeight / this.#mmWidth;
+  static height = this.width * this.mmHeight / this.mmWidth;
 
   static marginX = 10;
   static marginY = 5;
@@ -787,9 +741,8 @@ class CardView {
    * Draws a card.
    * @param {number} x screen coordinate
    * @param {number} y screen coordinate
-   * @param {Card} card card to draw
    */
-  static draw(x, y, card) {
+  static draw(x: number, y: number, card: Card | undefined) {
     ctx.beginPath();
 
     const img = cardImages.getCardImage(card);
