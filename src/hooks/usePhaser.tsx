@@ -1,4 +1,5 @@
 import React from "react";
+import Phaser from 'phaser';
 
 function usePhaser(config: Phaser.Types.Core.GameConfig | undefined) {
   const [game, setGame] = React.useState<Phaser.Game>();
