@@ -1,5 +1,6 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
+import SolitaireGame from '../components/SolitaireGame';
 import './Home.css';
 
 const Home: React.FC = () => {
@@ -16,7 +17,7 @@ const Home: React.FC = () => {
             <IonTitle size="large">Solitaire</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <ExploreContainer />
+        <SolitaireGame />
       </IonContent>
     </IonPage>
   );
