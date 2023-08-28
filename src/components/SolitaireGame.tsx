@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import SolitaireScene from '../game/SolitaireScene';
+import SolitaireScene from '../view/SolitaireScene';
 import usePhaser from '../hooks/usePhaser';
 import './SolitaireGame.css';
 

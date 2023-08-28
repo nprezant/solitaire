@@ -1,5 +1,5 @@
 /**
- * Algorithm to shuffle an arbitrary array.
+ * Algorithm to shuffle an arbitrary array in-place.
  */
  function shuffleArray(array: any[]) {
   for (let i = array.length - 1; i > 0; i--) {
