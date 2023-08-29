@@ -32,7 +32,7 @@ class SolitaireScene extends Phaser.Scene
             console.warn('Deck does not have 52 cards! Found ' + frames.length);
         }
 
-        Phaser.Utils.Array.Shuffle(frames);
+        // Phaser.Utils.Array.Shuffle(frames);
 
         var cards: CardView[] = [];
 

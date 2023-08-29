@@ -9,22 +9,39 @@ import StackLocation from "./StackLocation";
  */
  class StackView extends PositionedView {
 
-  addCard(card: CardView, location: StackLocation) {
+  protected cards: CardView[];
+  protected repositionAfterAdd: boolean = false;
+
+  constructor(x: number, y: number) {
+    super(x, y);
+    this.cards = [];
+  }
+
+  public addCard(card: CardView, location: StackLocation | undefined) {
     
     if (location === StackLocation.Top) {
       card.scene.children.bringToTop(card);
     }
 
-    this.animateMove(card);
+    this.cards.push(card);
+
+    if (this.repositionAfterAdd) {
+      this.repositionAllCards();
+    } else {
+      this.repositionCard(this.cards.length - 1);
+    }
   }
 
   // Override this to change where the next card gets added to the stack
-  protected nextPosition() {
+  protected positionOfNthCard(n: number) {
     return new Point(this.x, this.y);
   }
 
-  private animateMove(card: CardView) {
-    const p = this.nextPosition();
+  private repositionCard(index: number) {
+
+    const p = this.positionOfNthCard(index);
+    const card = this.cards[index];
+
     card.scene.tweens.add({
       targets: card,
       x: p.x,
@@ -33,6 +50,14 @@ import StackLocation from "./StackLocation";
       delay: 1200,
       duration: MoveDuration,
     });
+  }
+
+  private repositionAllCards() {
+
+    for (var i = 0; i < this.cards.length; ++i) {
+      this.repositionCard(i);
+    }
+
   }
 }
 

@@ -1,10 +1,13 @@
+import BoardEntity from "./BoardEntity";
+
 /**
  * A card that can flip and be dragged around.
  */
 class CardView extends Phaser.GameObjects.Sprite {
 
   public static DisplayWidth: number = 48;
-  
+
+  private _parentEntity: BoardEntity | undefined;
   private _canBeMoved: boolean = false;
 
   public get canBeMoved() {
@@ -17,6 +20,14 @@ class CardView extends Phaser.GameObjects.Sprite {
     }
     this._canBeMoved = value;
     this.setInteractive({ draggable: this._canBeMoved });
+  }
+
+  public get parentEntity(): BoardEntity | undefined {
+    return this._parentEntity;
+  }
+
+  public set parentEntity(value: BoardEntity | undefined) {
+    this._parentEntity = value;
   }
 
   constructor(scene: Phaser.Scene, x: number, y: number, cardstexture: string | Phaser.Textures.Texture, frame?: string | number) {
