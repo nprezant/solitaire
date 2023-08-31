@@ -5,6 +5,9 @@ import Card from './Card';
 /**
  * A stack of cards.
  * Supports adding, removing, peeking, shuffling.
+ * Convention:
+ *   bottom of stack: 0
+ *   top of stack: length - 1
  */
  class Stack {
   cards: Card[] = [];
@@ -58,7 +61,7 @@ import Card from './Card';
    * Undefined if there are no cards.
    */
   peek(): Card | undefined {
-    return this.cards[0];
+    return this.cards[-1];
   }
 
   /**
@@ -68,7 +71,7 @@ import Card from './Card';
     const taken = [];
 
     for (let i = 0; i < nCards; ++i) {
-      const took = this.cards.shift();
+      const took = this.cards.pop();
       if (took) { // When we run out of cards we will get undefined values.
         taken.push(took);
       }
@@ -85,14 +88,14 @@ import Card from './Card';
    * Add cards to the bottom of the deck.
    */
   addToBottom(...cards: Card[]) {
-    this.cards.push(...cards);
+    this.cards.unshift(...cards);
   }
 
   /**
    * Add cards to the top of the deck.
    */
   addToTop(...cards: Card[]) {
-    this.cards.unshift(...cards.reverse());
+    this.cards.push(...cards);
   }
 
   /**
