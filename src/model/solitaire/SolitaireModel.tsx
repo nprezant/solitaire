@@ -51,25 +51,36 @@ import { MoveData, WithoutMethods } from './MoveData';
     // Tableau
     this.tableau.clear();
     const nColumns = this.tableau.columns.length;
-    for (let ncol = nColumns; ncol > 0; --ncol) { // Columns in reverse
-      for (let i = 0; i < ncol; ++i) { // Cards in the column
-        
-        const columnIndex = nColumns - i - 1;
-        const card = this.drawPile.take()[0];
+    const nRows = nColumns; // Max length of rows out of all columns.
 
-        if (card === null)
-          throw new Error("Cannot setup board. Not enough cards.");
+    for (let nrow = 0; nrow < nRows; ++nrow) {
 
-        let column = this.tableau.columns[columnIndex];
+      for (let ncol = 0; ncol < nColumns; ++ncol) { // Columns
 
-        if (i !== ncol - 1) {
-          column.nHidden += 1;
+        const nCardsInColumn = ncol + 1;
+
+        if (nrow < nCardsInColumn) {
+
+          const card = this.drawPile.take()[0];
+  
+          if (card === null)
+            throw new Error("Cannot setup board. Not enough cards.");
+  
+          let column = this.tableau.columns[ncol];
+  
+          if (nrow !== nCardsInColumn - 1) {
+            column.nHidden += 1;
+          }
+  
+          column.cards.addToTop(card);
+  
+          this.sendMoveMessage({ cards: [card.name], from: BoardEntity.DrawPile, to: BoardEntity.Tableau, toIndex: ncol, msg: "dealing" });
+  
+
         }
 
-        column.cards.addToTop(card);
-
-        this.sendMoveMessage({ cards: [card.name], from: BoardEntity.DrawPile, to: BoardEntity.Tableau, toIndex: columnIndex, msg: "dealing" });
       }
+
     }
   }
 
