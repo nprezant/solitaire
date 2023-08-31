@@ -91,7 +91,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "clubsAce",
+    "filename": "clubs1",
     "frame": {"x":286,"y":2,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -100,7 +100,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "clubsJack",
+    "filename": "clubs11",
     "frame": {"x":286,"y":194,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -109,7 +109,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "clubsKing",
+    "filename": "clubs13",
     "frame": {"x":286,"y":386,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -118,7 +118,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "clubsQueen",
+    "filename": "clubs12",
     "frame": {"x":286,"y":578,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -208,7 +208,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "diamondsAce",
+    "filename": "diamonds1",
     "frame": {"x":570,"y":578,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -217,7 +217,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "diamondsJack",
+    "filename": "diamonds11",
     "frame": {"x":570,"y":770,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -226,7 +226,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "diamondsKing",
+    "filename": "diamonds13",
     "frame": {"x":712,"y":2,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -235,7 +235,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "diamondsQueen",
+    "filename": "diamonds12",
     "frame": {"x":854,"y":2,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -325,7 +325,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "heartsAce",
+    "filename": "hearts1",
     "frame": {"x":854,"y":386,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -334,7 +334,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "heartsJack",
+    "filename": "hearts11",
     "frame": {"x":854,"y":578,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -343,7 +343,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "heartsKing",
+    "filename": "hearts13",
     "frame": {"x":854,"y":770,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -352,7 +352,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "heartsQueen",
+    "filename": "hearts12",
     "frame": {"x":996,"y":194,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -451,7 +451,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "spadesAce",
+    "filename": "spades1",
     "frame": {"x":1138,"y":770,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -460,7 +460,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "spadesJack",
+    "filename": "spades11",
     "frame": {"x":1280,"y":578,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -469,7 +469,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "spadesKing",
+    "filename": "spades13",
     "frame": {"x":1280,"y":770,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,
@@ -478,7 +478,7 @@
     "pivot": {"x":0.5,"y":0.5}
   },
   {
-    "filename": "spadesQueen",
+    "filename": "spades12",
     "frame": {"x":1422,"y":578,"w":140,"h":190},
     "rotated": false,
     "trimmed": false,

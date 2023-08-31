@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
-import BoardEntity from './BoardEntity';
+import SolitaireModel from '../model/solitaire/SolitaireModel';
+import BoardEntity from '../model/solitaire/BoardEntity';
 import CardView from './CardView'
 import DrawPileView from './DrawPileView';
 import SolitaireBoardView from './SolitaireBoardView';
-import StackLocation from './StackLocation';
+import StackLocation from '../model/solitaire/StackLocation';
+import { MoveData } from '../model/solitaire/MoveData';
 
 class SolitaireScene extends Phaser.Scene
 {
@@ -66,30 +68,39 @@ class SolitaireScene extends Phaser.Scene
 
         });
 
+        // Setup solitaire model
+        const model = new SolitaireModel(3);
+
         // Setup the board state
         const board = new SolitaireBoardView(0, 0, cards);
 
-        for (var card of cards) {
-            board.moveCard(card, BoardEntity.DrawPile);
-        }
+        // Connect model and view
+        model.moveHook = (data: MoveData) => { board.handleCardsMoved(data); };
 
-        this.time.delayedCall(500, () => {
-            for (var i = 0; i < 10; ++i) {
-                board.moveCard(cards[i], BoardEntity.WastePile);
-            }
-        });
+        // Setup the board
+        model.setup();
 
-        this.time.delayedCall(1500, () => {
-            for (var i = 10; i < 20; ++i) {
-                board.moveCard(cards[i], BoardEntity.Tableau, 0);
-            }
-        });
+        // for (var card of cards) {
+        //     board.moveCard(card, BoardEntity.DrawPile);
+        // }
 
-        this.time.delayedCall(1500, () => {
-            for (var i = 20; i < 23; ++i) {
-                board.moveCard(cards[i], BoardEntity.Tableau, 1);
-            }
-        });
+        // this.time.delayedCall(1000, () => {
+        //     for (var i = 0; i < 10; ++i) {
+        //         board.moveCard(cards[i], BoardEntity.WastePile);
+        //     }
+        // });
+
+        // this.time.delayedCall(1500, () => {
+        //     for (var i = 10; i < 20; ++i) {
+        //         board.moveCard(cards[i], BoardEntity.Tableau, 0);
+        //     }
+        // });
+
+        // this.time.delayedCall(1500, () => {
+        //     for (var i = 20; i < 23; ++i) {
+        //         board.moveCard(cards[i], BoardEntity.Tableau, 1);
+        //     }
+        // });
     }
 }
 

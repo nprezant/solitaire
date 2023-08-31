@@ -2,7 +2,7 @@ import { MoveDuration } from "./Animations";
 import CardView from "./CardView";
 import Point from "./Point";
 import PositionedView from "./PositionedView";
-import StackLocation from "./StackLocation";
+import StackLocation from "../model/solitaire/StackLocation";
 
 /**
  * Stack of cards.
@@ -47,7 +47,6 @@ import StackLocation from "./StackLocation";
       x: p.x,
       y: p.y,
       ease: 'cubic.out',
-      delay: 1200,
       duration: MoveDuration,
     });
   }

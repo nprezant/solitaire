@@ -1,42 +1,46 @@
 import Stack from './Stack'
 import Foundations from './Foundations'
 import Tableau from './Tableau'
+import BoardEntity from './BoardEntity';
+import { MoveData, WithoutMethods } from './MoveData';
 
 /**
  * The main solitaire game.
  */
- class Game {
+ class SolitaireModel {
   drawRate: any;
   drawPile: Stack;
   wastePile: Stack;
   foundations: Foundations;
   tableau: Tableau;
 
-  /**
-   * Initializer
-   * @param {number} drawRate how many cards to draw at a time.
-   */
   constructor(drawRate: number) {
     this.drawRate = drawRate;
 
-    /**
-     * The draw pile
-     * @type {Stack}
-     * @public
-     */
     this.drawPile = new Stack();
     this.wastePile = new Stack(); // Cards
     this.foundations = new Foundations(); // Where the aces stack upwards
     this.tableau = new Tableau(); // Where you play solitaire
   }
 
-  /**
-   * Sets up a new game.
-   */
+  // The move hook is called whenever the solitaire model moves a card.
+  public moveHook: (data: MoveData) => void = () => { };
+
+  private sendMoveMessage(data: WithoutMethods<MoveData>) {
+    this.moveHook(new MoveData(data));
+  }
+
   setup() {
     // Draw pile
     this.drawPile.fillDeck();
-    this.drawPile.shuffle();
+    // this.drawPile.shuffle();
+
+    // Update dependents with the shuffled deck.
+    // for (const card of this.drawPile) {
+    //   this.sendMoveMessage({ cards: [card.name], from: BoardEntity.DrawPile, to: BoardEntity.DrawPile, msg: "shuffling" });
+    // }
+    // or
+    this.sendMoveMessage({ cards: this.drawPile.cards.map(x => x.name), from: BoardEntity.DrawPile, to: BoardEntity.DrawPile, msg: "shuffling" });
 
     // Waste pile
     this.wastePile.clear();
@@ -53,7 +57,7 @@ import Tableau from './Tableau'
         const columnIndex = nColumns - i - 1;
         const card = this.drawPile.take()[0];
 
-        if (card == null)
+        if (card === null)
           throw new Error("Cannot setup board. Not enough cards.");
 
         let column = this.tableau.columns[columnIndex];
@@ -63,6 +67,8 @@ import Tableau from './Tableau'
         }
 
         column.cards.addToTop(card);
+
+        this.sendMoveMessage({ cards: [card.name], from: BoardEntity.DrawPile, to: BoardEntity.Tableau, toIndex: columnIndex, msg: "dealing" });
       }
     }
   }
@@ -73,6 +79,7 @@ import Tableau from './Tableau'
   drawStep() {
     const drawnCards = this.drawPile.take(this.drawRate);
     this.wastePile.addToTop(...drawnCards);
+    this.sendMoveMessage({cards: drawnCards.map(x => x.name), from: BoardEntity.DrawPile, to: BoardEntity.WastePile, msg: "drawing" });
   }
 
   /**
@@ -83,4 +90,4 @@ import Tableau from './Tableau'
   }
 }
 
-export default Game;
+export default SolitaireModel;

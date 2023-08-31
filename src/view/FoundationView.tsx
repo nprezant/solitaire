@@ -1,6 +1,6 @@
 import CardView from "./CardView";
 import PositionedView from "./PositionedView";
-import StackLocation from "./StackLocation";
+import StackLocation from "../model/solitaire/StackLocation";
 import StackView from "./StackView";
 
  class FoundationView extends PositionedView {
@@ -17,7 +17,8 @@ import StackView from "./StackView";
      }
    }
 
-   addCard(card: CardView, stackIndex: number) {
+   addCard(card: CardView, stackIndex: number | undefined) {
+     stackIndex ??= 0;
      this.stacks[stackIndex].addCard(card, StackLocation.Top);
    }
 }

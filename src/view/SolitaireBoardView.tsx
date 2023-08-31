@@ -1,10 +1,11 @@
-import BoardEntity from "./BoardEntity";
+import BoardEntity from "../model/solitaire/BoardEntity";
 import CardView from "./CardView";
 import DrawPileView from "./DrawPileView";
 import FoundationView from "./FoundationView";
-import StackLocation from "./StackLocation";
+import StackLocation from "../model/solitaire/StackLocation";
 import TableauView from "./TableauView";
 import WastePileView from "./WastePileView";
+import { MoveData } from "../model/solitaire/MoveData";
 
 /**
  * Service for managing the solitaire board.
@@ -32,29 +33,40 @@ import WastePileView from "./WastePileView";
     this.foundation = new FoundationView(100, 200);
   }
 
-  drawCards(n: number) {
-
+  private getCard(name: string) {
+    const filtered = this.cards.filter(x => x.cardName == name);
+    if (filtered.length > 0) {
+      return filtered[0];
+    }
+    return undefined;
   }
 
-  moveCard(card: string | CardView, toEntity: BoardEntity, index: number = 0, location: StackLocation = StackLocation.Top) {
-    if (typeof card === 'string') {
-      card = this.cards[0] // TODO get the card with the right name
+  handleCardsMoved(data: MoveData) {
+    const nCards = data.cards.length;
+    for (var i = 0; i < nCards; ++i) {
+      this.moveOneCard(data);
+      data.cards.shift(); // Shift 1st element to 0th position.
     }
-    switch (toEntity) {
+  }
+
+  moveOneCard(data: MoveData) {
+
+    const card = this.getCard(data.cards[0])!
+    switch (data.to) {
       case BoardEntity.DrawPile:
-        this.drawPile.addCard(card, location);
+        this.drawPile.addCard(card, data.toLocation);
         break;
       case BoardEntity.WastePile:
-        this.wastePile.addCard(card, location);
+        this.wastePile.addCard(card, data.toLocation);
         break;
       case BoardEntity.Tableau:
-        this.tableau.addCard(card, index);
+        this.tableau.addCard(card, data.toIndex);
         break;
       case BoardEntity.Foundation:
-        this.foundation.addCard(card, index);
+        this.foundation.addCard(card, data.toIndex);
         break;
       default:
-        console.warn('no valid target entity found for ' + toEntity);;
+        console.warn('no valid target entity found for ' + data.to);;
         break;
     }
   }

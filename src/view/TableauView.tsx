@@ -2,7 +2,7 @@
 import CardView from "./CardView";
 import ColumnView from "./ColumnView";
 import PositionedView from "./PositionedView";
-import StackLocation from "./StackLocation";
+import StackLocation from "../model/solitaire/StackLocation";
 
  class TableauView extends PositionedView {
    private columns: ColumnView[];
@@ -18,7 +18,8 @@ import StackLocation from "./StackLocation";
      }
    }
 
-   addCard(card: CardView, stackIndex: number) {
+   addCard(card: CardView, stackIndex: number | undefined) {
+     stackIndex ??= 0;
      this.columns[stackIndex].addCard(card, StackLocation.Top);
    }
 }

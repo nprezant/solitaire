@@ -13,6 +13,10 @@ import { Suit, Color, suitColor } from './Suit';
     this.suit = suit;
     this.color = suitColor(suit);
   }
+
+  public get name(): string {
+    return this.suit + this.number;
+  }
 }
 
 export default Card;
