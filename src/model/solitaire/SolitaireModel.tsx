@@ -83,6 +83,16 @@ import { MoveData, WithoutMethods } from './MoveData';
   }
 
   /**
+   * Resets the waste pile when there are no cards left to draw.
+   */
+  resetWastePile() {
+    if (!this.drawPile.empty()) { return; }
+    const wasteCards = this.wastePile.takeAll();
+    this.drawPile.addToTop(...wasteCards);
+    this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: BoardEntity.WastePile, to: BoardEntity.DrawPile, msg: "resetting waste" });
+  }
+
+  /**
    * Whether the win condition has been met.
    */
   won(): boolean {

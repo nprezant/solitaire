@@ -32,7 +32,12 @@ import StackLocation from "../model/solitaire/StackLocation";
     }
   }
 
+  public removeCard(card: CardView) {
+    this.cards = this.cards.filter(x => x.cardName !== card.cardName); // Should this use another compare function?
+  }
+
   // Override this to change where the next card gets added to the stack
+  // n is counted from the bottom of the stack
   protected positionOfNthCard(n: number) {
     return new Point(this.x, this.y);
   }

@@ -38,6 +38,10 @@ class CardView extends Phaser.GameObjects.Sprite {
     this.setScale(CardView.DisplayWidth / this.width);
     scene.add.existing(this);
   }
+
+  public bringToTop() {
+    this.scene.children.bringToTop(this);
+  }
 }
 
 export default CardView;

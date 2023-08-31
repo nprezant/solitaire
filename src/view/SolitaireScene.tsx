@@ -6,6 +6,7 @@ import DrawPileView from './DrawPileView';
 import SolitaireBoardView from './SolitaireBoardView';
 import StackLocation from '../model/solitaire/StackLocation';
 import { MoveData } from '../model/solitaire/MoveData';
+import Card from '../model/solitaire/Card';
 
 class SolitaireScene extends Phaser.Scene
 {
@@ -53,10 +54,19 @@ class SolitaireScene extends Phaser.Scene
             y += 12;
         }
 
-        this.input.on('dragstart',  (pointer: any, gameObject: Phaser.GameObjects.GameObject) => {
+        this.input.on('dragstart',  (pointer: any, gameObject: CardView) => {
 
-            //  This will bring the selected gameObject to the top of the list
-            this.children.bringToTop(gameObject);
+            switch (gameObject.parentEntity) {
+                case BoardEntity.DrawPile:
+                    model.drawStep();
+                    break;
+                case BoardEntity.WastePile:
+                    model.resetWastePile();
+                    break;
+                default:
+                    console.log('dragging not supported for object with parent entity ' + gameObject.parentEntity);
+                    break;
+            }
 
         }, this);
 

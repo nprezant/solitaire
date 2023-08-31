@@ -41,17 +41,41 @@ import { MoveData } from "../model/solitaire/MoveData";
     return undefined;
   }
 
-  handleCardsMoved(data: MoveData) {
+  public handleCardsMoved(data: MoveData) {
     const nCards = data.cards.length;
     for (var i = 0; i < nCards; ++i) {
-      this.moveOneCard(data);
-      data.cards.shift(); // Shift 1st element to 0th position.
+      this.moveOneCard(data, i);
     }
   }
 
-  moveOneCard(data: MoveData) {
+  private moveOneCard(data: MoveData, cardIndex: number) {
 
-    const card = this.getCard(data.cards[0])!
+    console.log('moving card ' + data.cards[cardIndex] + ' from ' + data.from + ' to ' + data.to + ': ' + data.msg);
+
+    const card = this.getCard(data.cards[cardIndex])!
+    card.bringToTop();
+
+    // Remove from exising collection
+    switch (card.parentEntity) {
+      case BoardEntity.DrawPile:
+        this.drawPile.removeCard(card);
+        break;
+      case BoardEntity.WastePile:
+        this.wastePile.removeCard(card);
+        break;
+      case BoardEntity.Tableau:
+        this.tableau.removeCard(card);
+        break;
+      case BoardEntity.Foundation:
+        this.foundation.removeCard(card);
+        break;
+      default:
+        console.warn('no valid target entity found for ' + data.to);;
+        break;
+    }
+
+    // Add to new collection
+    card.parentEntity = data.to;
     switch (data.to) {
       case BoardEntity.DrawPile:
         this.drawPile.addCard(card, data.toLocation);

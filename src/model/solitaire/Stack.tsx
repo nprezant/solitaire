@@ -77,6 +77,10 @@ import Card from './Card';
     return taken;
   }
 
+  takeAll(): Card[] {
+    return this.take(this.cards.length);
+  }
+
   /**
    * Add cards to the bottom of the deck.
    */
@@ -88,7 +92,7 @@ import Card from './Card';
    * Add cards to the top of the deck.
    */
   addToTop(...cards: Card[]) {
-    this.cards.unshift(...cards);
+    this.cards.unshift(...cards.reverse());
   }
 
   /**

@@ -21,6 +21,12 @@ import StackView from "./StackView";
      stackIndex ??= 0;
      this.stacks[stackIndex].addCard(card, StackLocation.Top);
    }
+
+   removeCard(card: CardView) {
+     for (var stack of this.stacks) {
+       stack.removeCard(card);
+     }
+   }
 }
 
 export default FoundationView;

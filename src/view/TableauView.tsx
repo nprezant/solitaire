@@ -22,6 +22,12 @@ import StackLocation from "../model/solitaire/StackLocation";
      stackIndex ??= 0;
      this.columns[stackIndex].addCard(card, StackLocation.Top);
    }
+
+   removeCard(card: CardView) {
+     for (var column of this.columns) {
+       column.removeCard(card);
+     }
+   }
 }
 
 export default TableauView;
