@@ -3,8 +3,9 @@ import SolitaireModel from '../model/solitaire/SolitaireModel';
 import BoardEntity from '../model/solitaire/BoardEntity';
 import CardView from './CardView'
 import SolitaireBoardView from './SolitaireBoardView';
-import { MoveData } from '../model/solitaire/MoveData';
+import MoveData from '../model/solitaire/MoveData';
 import { MoveDuration } from './Animations';
+import CardDropZone from './CardDropZone';
 
 class SolitaireScene extends Phaser.Scene
 {
@@ -73,47 +74,53 @@ class SolitaireScene extends Phaser.Scene
         }, this);
 
 
-        this.input.on('drag', function (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Graphics, dragX: number, dragY: number) {
+        this.input.on('drag', function (pointer: Phaser.Input.Pointer, gameObject: CardView, dragX: number, dragY: number) {
 
             // Drags with the pointer
-            gameObject.x = dragX;
-            gameObject.y = dragY;
+            gameObject.didDragTo(dragX, dragY);
 
         });
 
-        this.input.on('dragleave', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject, dropZone: Phaser.GameObjects.Zone) =>
+        this.input.on('dragleave', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: Phaser.GameObjects.Zone) =>
         {
 
-            console.log('dragleave');
+            // console.log('dragleave');
             // dropZone.clearTint();
 
         });
 
-        this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: Phaser.GameObjects.Zone) =>
+        this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: CardDropZone) =>
         {
-            this.tweens.add({
-                targets: gameObject,
-                x: dropZone.x,
-                y: dropZone.y,
-                ease: 'quart.out',
-                duration: MoveDuration / 2,
-            });
-            gameObject.bringToTop();
+            // this.tweens.add({
+            //     targets: gameObject,
+            //     x: dropZone.x,
+            //     y: dropZone.y,
+            //     ease: 'quart.out',
+            //     duration: MoveDuration / 2,
+            // });
+            // gameObject.bringToTop();this
+
+            console.log('dropped')
+            model.handleCardWasMovedByHand({ cards: gameObject.draggedCardNames, from: gameObject.location, to: dropZone.location, msg: "dropped"});
         });
 
         this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropped: boolean) =>
         {
             if (!dropped)
             {
-                this.tweens.add({
-                    targets: gameObject,
-                    x: gameObject.input!.dragStartX,
-                    y: gameObject.input!.dragStartY,
-                    ease: 'quart.out',
-                    duration: MoveDuration / 2,
-                });
+                // this.tweens.add({
+                //     targets: gameObject,
+                //     x: gameObject.input!.dragStartX,
+                //     y: gameObject.input!.dragStartY,
+                //     ease: 'quart.out',
+                //     duration: MoveDuration / 2,
+                // });
+
+                // Drop cancelled; card is sent back where it started.
+                model.handleCardWasMovedByHand({ cards: gameObject.draggedCardNames, from: gameObject.location, to: gameObject.location, msg: "drop cancelled" });
             }
 
+            gameObject.dragDidEnd();
         });
 
         // Setup solitaire model
@@ -127,28 +134,10 @@ class SolitaireScene extends Phaser.Scene
 
         // Setup the board
         model.setup();
+    }
 
-        // for (var card of cards) {
-        //     board.moveCard(card, BoardEntity.DrawPile);
-        // }
+    private sendCardPickedUp() {
 
-        // this.time.delayedCall(1000, () => {
-        //     for (var i = 0; i < 10; ++i) {
-        //         board.moveCard(cards[i], BoardEntity.WastePile);
-        //     }
-        // });
-
-        // this.time.delayedCall(1500, () => {
-        //     for (var i = 10; i < 20; ++i) {
-        //         board.moveCard(cards[i], BoardEntity.Tableau, 0);
-        //     }
-        // });
-
-        // this.time.delayedCall(1500, () => {
-        //     for (var i = 20; i < 23; ++i) {
-        //         board.moveCard(cards[i], BoardEntity.Tableau, 1);
-        //     }
-        // });
     }
 }
 

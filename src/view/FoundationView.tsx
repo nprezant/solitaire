@@ -2,16 +2,17 @@ import CardView from "./CardView";
 import PositionedView from "./PositionedView";
 import StackLocation from "../model/solitaire/StackLocation";
 import StackView from "./StackView";
+import CardLocation from "../model/solitaire/CardLocation";
 
  class FoundationView extends PositionedView {
    private stacks: StackView[];
 
-   constructor(x: number, y: number, scene: Phaser.Scene) {
+   constructor(scene: Phaser.Scene, x: number, y: number) {
      super(x, y);
 
      this.stacks = [];
      for (var i = 0; i < 4; ++i) {
-       const stack = new StackView(x, y, scene);
+       const stack = new StackView(scene, x, y, CardLocation.foundation(i));
        this.stacks.push(stack);
        x += 80; // width of a card + margin
      }

@@ -1,24 +1,21 @@
 import BoardEntity from './BoardEntity';
-import StackLocation from './StackLocation';
+import CardLocation from './CardLocation';
+import { MembersOf } from './TypeUtils';
 
-// https://stackoverflow.com/questions/49061774/how-to-build-a-typescript-class-constructor-with-object-defining-class-fields
-type NonMethodKeys<T> = {[P in keyof T]: T[P] extends Function ? never : P }[keyof T];  
-export type WithoutMethods<T> = Pick<T, NonMethodKeys<T>>; 
-
-export class MoveData {
+class MoveData {
   public cards!: string[];
-  public from?: BoardEntity;
-  public to?: BoardEntity;
-  public toIndex?: number;
-  public toLocation?: StackLocation;
+  public from!: CardLocation;
+  public to!: CardLocation;
   public msg?: string;
 
-  constructor(data: WithoutMethods<MoveData>) {
+  constructor(data: MembersOf<MoveData>) {
     Object.assign(this, data);
   }
 
   method() { }
 }
+
+export default MoveData;
 
 // Example usage
 // const item = new MoveData({ });  // card is required

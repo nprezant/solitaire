@@ -2,7 +2,9 @@ import Stack from './Stack'
 import Foundations from './Foundations'
 import Tableau from './Tableau'
 import BoardEntity from './BoardEntity';
-import { MoveData, WithoutMethods } from './MoveData';
+import MoveData from './MoveData';
+import { MembersOf } from './TypeUtils';
+import CardLocation from './CardLocation';
 
 /**
  * The main solitaire game.
@@ -26,8 +28,80 @@ import { MoveData, WithoutMethods } from './MoveData';
   // The move hook is called whenever the solitaire model moves a card.
   public moveHook: (data: MoveData) => void = () => { };
 
-  private sendMoveMessage(data: WithoutMethods<MoveData>) {
+  private sendMoveMessage(data: MembersOf<MoveData>) {
     this.moveHook(new MoveData(data));
+  }
+
+  /**
+   * This card was moved externally so we need to validate that change
+   * in the model
+   */
+  public handleCardWasMovedByHand(data_: MembersOf<MoveData>) {
+    let data = new MoveData(data_);
+
+    let movingTo = data.to?.loc;
+    if (movingTo === undefined) { this.rejectHandMove(data); }
+
+    let movingFrom = data.from?.loc;
+
+    switch (movingTo) {
+      case BoardEntity.DrawPile:
+      case BoardEntity.WastePile:
+        // Only valid if this is undoing the last move
+        console.warn('moving to draw/waste piles by hand is undo-ing; not yet supported');
+        break;
+      case BoardEntity.Tableau:
+        // Maybe valid.
+        // Can generally move within tableau
+        // Can move from top of waste to tableau
+        // Can move from foundation to tableau if undo-ing
+
+        if (movingFrom === undefined) {
+          // Idk if this would happen
+          this.acceptHandMove(data);
+          break;
+        }
+
+        switch (movingFrom) {
+          case BoardEntity.DrawPile:
+            this.rejectHandMove(data);
+            break;
+          case BoardEntity.WastePile:
+            // todo check if it's we're at the top of the waste pile
+            this.acceptHandMove(data);
+            break;
+          case BoardEntity.Foundation:
+            // todo check if the colors/numbers are okay
+            this.acceptHandMove(data);
+            break;
+          case BoardEntity.Tableau:
+            // todo check if the colors/numbers are okay
+            this.acceptHandMove(data);
+            break;
+        }
+        break;
+      case BoardEntity.Foundation:
+        // Maybe valid.
+        // Can move tableau to foundation.
+        // Can move top of waste to foundation
+        // Otherwise, maybe if undoing
+        console.warn('lol what does progressing the game even mean');
+        break;
+    }
+  }
+
+  private acceptHandMove(data: MoveData) {
+    console.log('accepted move');
+    this.sendMoveMessage(data);
+  }
+
+  private rejectHandMove(data: MoveData) {
+    // Cancel the move by sending it back where it came from.
+    console.log('rejected move');
+    let rejectedData = new MoveData(data);
+    rejectedData.to = rejectedData.from;
+    rejectedData.from = { loc: BoardEntity.None };
+    this.sendMoveMessage(rejectedData);
   }
 
   setup() {
@@ -40,7 +114,7 @@ import { MoveData, WithoutMethods } from './MoveData';
     //   this.sendMoveMessage({ cards: [card.name], from: BoardEntity.DrawPile, to: BoardEntity.DrawPile, msg: "shuffling" });
     // }
     // or
-    this.sendMoveMessage({ cards: this.drawPile.cards.map(x => x.name), from: BoardEntity.DrawPile, to: BoardEntity.DrawPile, msg: "shuffling" });
+    this.sendMoveMessage({ cards: this.drawPile.cards.map(x => x.name), from: CardLocation.drawPile(), to: CardLocation.drawPile(), msg: "shuffling" });
 
     // Waste pile
     this.wastePile.clear();
@@ -54,13 +128,11 @@ import { MoveData, WithoutMethods } from './MoveData';
     const nRows = nColumns; // Max length of rows out of all columns.
 
     for (let nrow = 0; nrow < nRows; ++nrow) {
-
       for (let ncol = 0; ncol < nColumns; ++ncol) { // Columns
 
         const nCardsInColumn = ncol + 1;
 
         if (nrow < nCardsInColumn) {
-
           const card = this.drawPile.take()[0];
   
           if (card === null)
@@ -74,13 +146,9 @@ import { MoveData, WithoutMethods } from './MoveData';
   
           column.cards.addToTop(card);
   
-          this.sendMoveMessage({ cards: [card.name], from: BoardEntity.DrawPile, to: BoardEntity.Tableau, toIndex: ncol, msg: "dealing" });
-  
-
+          this.sendMoveMessage({ cards: [card.name], from: CardLocation.drawPile(), to: CardLocation.tableau(ncol), msg: "dealing" });
         }
-
       }
-
     }
   }
 
@@ -90,7 +158,7 @@ import { MoveData, WithoutMethods } from './MoveData';
   drawStep() {
     const drawnCards = this.drawPile.take(this.drawRate);
     this.wastePile.addToTop(...drawnCards);
-    this.sendMoveMessage({cards: drawnCards.map(x => x.name), from: BoardEntity.DrawPile, to: BoardEntity.WastePile, msg: "drawing" });
+    this.sendMoveMessage({cards: drawnCards.map(x => x.name), from: CardLocation.drawPile(), to: CardLocation.wastePile(), msg: "drawing" });
   }
 
   /**
@@ -100,7 +168,7 @@ import { MoveData, WithoutMethods } from './MoveData';
     if (!this.drawPile.empty()) { return; }
     const wasteCards = this.wastePile.takeAll();
     this.drawPile.addToTop(...wasteCards);
-    this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: BoardEntity.WastePile, to: BoardEntity.DrawPile, msg: "resetting waste" });
+    this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: CardLocation.wastePile(), to: CardLocation.drawPile(), msg: "resetting waste" });
   }
 
   /**

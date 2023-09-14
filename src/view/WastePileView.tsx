@@ -1,8 +1,13 @@
+import CardLocation from "../model/solitaire/CardLocation";
 import CardView from "./CardView";
 import Point from "./Point";
 import StackView from "./StackView";
 
  class WastePileView extends StackView {
+   
+  constructor(scene: Phaser.Scene, x: number, y: number) {
+    super(scene, x, y, CardLocation.wastePile());
+  }
 
   protected repositionAfterAdd: boolean = true;
 

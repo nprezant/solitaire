@@ -1,4 +1,7 @@
 import BoardEntity from "../model/solitaire/BoardEntity";
+import CardLocation from "../model/solitaire/CardLocation";
+import StackLocation from "../model/solitaire/StackLocation";
+import { MembersOf } from "../model/solitaire/TypeUtils";
 
 /**
  * A card that can flip and be dragged around.
@@ -11,10 +14,23 @@ class CardView extends Phaser.GameObjects.Sprite {
   public static displayWidth: number = 48;
   public static displayHeight: number = this.displayWidth * this.mmHeight / this.mmWidth;
 
-  private _parentEntity: BoardEntity | undefined;
+  // Location on the board
+  private _location: CardLocation = new CardLocation({ loc: BoardEntity.None });
+
+  // Whether or not this card can be moved
   private _canBeMoved: boolean = false;
 
   public cardName: string;
+
+  public dragAlongCards: CardView[] = [];
+
+  public get draggedCardNames(): string[] {
+    return [this.cardName].concat(this.dragAlongCards.map(x => x.cardName));
+  }
+
+  public dragDidEnd() {
+    this.dragAlongCards.length = 0;
+  }
 
   public get canBeMoved() {
     return this._canBeMoved;
@@ -28,12 +44,32 @@ class CardView extends Phaser.GameObjects.Sprite {
     this.setInteractive({ draggable: this._canBeMoved });
   }
 
-  public get parentEntity(): BoardEntity | undefined {
-    return this._parentEntity;
+  public get parentEntity(): BoardEntity {
+    return this._location.loc;
   }
 
-  public set parentEntity(value: BoardEntity | undefined) {
-    this._parentEntity = value;
+  public set parentEntity(value: BoardEntity) {
+    this._location.loc = value;
+    this._location.stackLocation = undefined;
+    this._location.index = undefined;
+  }
+
+  public set parentEntityIndex(value: integer) {
+    this._location.index = value;
+    this._location.stackLocation = undefined;
+  }
+
+  public set parentEntityPosition(value: StackLocation) {
+    this._location.stackLocation = value;
+    this._location.index = undefined;
+  }
+
+  public get location(): CardLocation {
+    return this._location;
+  }
+
+  public set location(value: MembersOf<CardLocation>) {
+    Object.assign(this._location, value);
   }
 
   constructor(scene: Phaser.Scene, x: number, y: number, cardstexture: string | Phaser.Textures.Texture, frame?: string | number) {
@@ -45,6 +81,13 @@ class CardView extends Phaser.GameObjects.Sprite {
 
   public bringToTop() {
     this.scene.children.bringToTop(this);
+  }
+
+  public didDragTo(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+
+    // TODO also update drag dependencies
   }
 }
 

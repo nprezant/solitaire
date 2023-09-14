@@ -4,8 +4,9 @@ import DrawPileView from "./DrawPileView";
 import FoundationView from "./FoundationView";
 import TableauView from "./TableauView";
 import WastePileView from "./WastePileView";
-import { MoveData } from "../model/solitaire/MoveData";
+import MoveData from "../model/solitaire/MoveData";
 import StackLocation from "../model/solitaire/StackLocation";
+import StackView from "./StackView";
 
 /**
  * Service for managing the solitaire board.
@@ -27,10 +28,10 @@ import StackLocation from "../model/solitaire/StackLocation";
     this.y = y;
     this.cards = cards;
 
-    this.drawPile = new DrawPileView(450, 100, scene);
-    this.wastePile = new WastePileView(350, 100, scene);
-    this.tableau = new TableauView(100, 300, scene);
-    this.foundation = new FoundationView(100, 200, scene);
+    this.drawPile = new DrawPileView(scene, 450, 100);
+    this.wastePile = new WastePileView(scene, 350, 100);
+    this.tableau = new TableauView(scene, 100, 300);
+    this.foundation = new FoundationView(scene, 100, 200);
   }
 
   private getCard(name: string) {
@@ -49,6 +50,11 @@ import StackLocation from "../model/solitaire/StackLocation";
   }
 
   public cardIsDragging(card: CardView) {
+    // Card may have associated cards to be dragged alongside it
+    if (card.parentEntity === BoardEntity.Tableau) {
+      let dragAlongCards = this.tableau.cardsOnTopOf(card);
+      card.dragAlongCards = dragAlongCards;
+    }
     this.removeCardFromParentCollection(card);
   }
 
@@ -98,7 +104,7 @@ import StackLocation from "../model/solitaire/StackLocation";
 
   private moveOneCard(data: MoveData, cardIndex: number) {
 
-    console.log('moving card ' + data.cards[cardIndex] + ' from ' + data.from + ' to ' + data.to + ': ' + data.msg);
+    console.log('moving ' + data.cards[cardIndex] + ' from ' + data.from + ' to ' + data.to + ': ' + data.msg);
 
     const card = this.getCard(data.cards[cardIndex])!
     card.bringToTop();
@@ -107,8 +113,8 @@ import StackLocation from "../model/solitaire/StackLocation";
     this.removeCardFromParentCollection(card);
 
     // Add to new collection
-    card.parentEntity = data.to;
-    this.addCardToNewCollection(card, data.toIndex, data.toLocation);
+    card.location = data.to;
+    this.addCardToNewCollection(card, data.to.index, data.to.stackLocation);
   }
 }
 
