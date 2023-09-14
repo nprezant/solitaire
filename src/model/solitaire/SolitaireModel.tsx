@@ -39,8 +39,11 @@ import CardLocation from './CardLocation';
   public handleCardWasMovedByHand(data_: MembersOf<MoveData>) {
     let data = new MoveData(data_);
 
+    let accept = () => this.acceptHandMove(data);
+    let reject = () => this.rejectHandMove(data);
+
     let movingTo = data.to?.loc;
-    if (movingTo === undefined) { this.rejectHandMove(data); }
+    if (movingTo === undefined) { reject(); }
 
     let movingFrom = data.from?.loc;
 
@@ -49,6 +52,7 @@ import CardLocation from './CardLocation';
       case BoardEntity.WastePile:
         // Only valid if this is undoing the last move
         console.warn('moving to draw/waste piles by hand is undo-ing; not yet supported');
+        reject();
         break;
       case BoardEntity.Tableau:
         // Maybe valid.
@@ -58,26 +62,28 @@ import CardLocation from './CardLocation';
 
         if (movingFrom === undefined) {
           // Idk if this would happen
-          this.acceptHandMove(data);
+          accept();
           break;
         }
 
         switch (movingFrom) {
           case BoardEntity.DrawPile:
-            this.rejectHandMove(data);
+            reject();
             break;
           case BoardEntity.WastePile:
             // todo check if it's we're at the top of the waste pile
-            this.acceptHandMove(data);
+            accept();
             break;
           case BoardEntity.Foundation:
             // todo check if the colors/numbers are okay
-            this.acceptHandMove(data);
+            accept();
             break;
           case BoardEntity.Tableau:
             // todo check if the colors/numbers are okay
-            this.acceptHandMove(data);
+            accept();
             break;
+          default:
+            reject();
         }
         break;
       case BoardEntity.Foundation:
@@ -86,7 +92,10 @@ import CardLocation from './CardLocation';
         // Can move top of waste to foundation
         // Otherwise, maybe if undoing
         console.warn('lol what does progressing the game even mean');
+        accept();
         break;
+      default:
+        reject();
     }
   }
 
