@@ -62,6 +62,10 @@ import { FaceCard } from "./Suit"
     
   }
 
+  public takeByName(names: string[]): Card[] {
+    return this.cards.takeByName(names);
+  }
+
   /**
    * Clears the cards from this column.
    */

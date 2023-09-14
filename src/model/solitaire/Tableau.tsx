@@ -73,6 +73,16 @@ import TableauColumn from './TableauColumn'
     return undefined;
   }
 
+  addToColumn(n?: integer, ...cards: Card[]) {
+    this.columns[n ?? 0].cards.addToTop(...cards);
+  }
+
+  takeByName(names: string[]): Card[] {
+    return this.columns.reduce((taken: Card[], column: TableauColumn): Card[] => {
+      return taken.concat(column.takeByName(names));
+    }, [] as Card[]);
+  }
+
   /**
    * Clears the underlying columns
    */

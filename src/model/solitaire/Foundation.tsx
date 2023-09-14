@@ -51,6 +51,10 @@ import Card from "./Card";
     return this.cards.peek();
   }
 
+  public takeByName(names: string[]): Card[] {
+    return this.cards.takeByName(names);
+  }
+
   /**
    * Clears the cards from this foundation.
    */

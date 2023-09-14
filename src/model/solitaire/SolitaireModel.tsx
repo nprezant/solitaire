@@ -7,6 +7,7 @@ import { MembersOf } from './TypeUtils';
 import CardLocation from './CardLocation';
 import Card from './Card';
 import MoveEvent from './MoveEvent';
+import StackLocation from './StackLocation';
 
 /**
  * The main solitaire game.
@@ -123,6 +124,7 @@ import MoveEvent from './MoveEvent';
   }
 
   private acceptHandMove(data: MoveData) {
+    this.performMove(data);
     this.sendMoveMessage(data);
   }
 
@@ -136,6 +138,46 @@ import MoveEvent from './MoveEvent';
     rejectedData.from = CardLocation.none();
 
     this.sendMoveMessage(rejectedData);
+  }
+
+  private performMove(data: MoveData) {
+    var names = data.cards; // Card names
+    var cards: Card[];
+
+    switch (data.from.loc) {
+      case BoardEntity.DrawPile:
+        cards = this.drawPile.takeByName(names);
+        break;
+      case BoardEntity.WastePile:
+        cards = this.wastePile.takeByName(names);
+        break;
+      case BoardEntity.Foundation:
+        cards = this.foundations.takeByName(names);
+        break;
+      case BoardEntity.Tableau:
+        cards = this.tableau.takeByName(names);
+        break;
+      default:
+        console.error('Cannot perform move from location ' + data.from);
+        return;
+    }
+
+    switch (data.to.loc) {
+      case BoardEntity.DrawPile:
+        this.drawPile.add(data.to.stackLocation, ...cards);
+        break;
+      case BoardEntity.WastePile:
+        this.wastePile.add(data.to.stackLocation, ...cards);
+        break;
+      case BoardEntity.Tableau:
+        this.tableau.addToColumn(data.to.index, ...cards);
+        break;
+      case BoardEntity.Foundation:
+        this.foundations.addToFoundation(data.to.index, ...cards);
+      default:
+        console.error('Cannot perform move to location ' + data.to);
+        return;
+    }
   }
 
   private findCard(cardName: string) {

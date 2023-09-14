@@ -69,6 +69,16 @@ import { Suit, SUIT_SIZE } from "./Suit";
     return undefined;
   }
 
+  addToFoundation(n?: integer, ...cards: Card[]) {
+    this.foundations[n ?? 0].cards.addToTop(...cards);
+  }
+
+  takeByName(names: string[]): Card[] {
+    return this.foundations.reduce((taken: Card[], foundation: Foundation): Card[] => {
+      return taken.concat(foundation.takeByName(names));
+    }, [] as Card[]);
+  }
+
   /**
    * Tests whether the foundations are full.
    * @return {boolean} true if the foundations are full.

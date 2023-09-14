@@ -1,6 +1,7 @@
 import { shuffleArray } from './algorithm';
 import { Suit, SUIT_SIZE } from './Suit';
 import Card from './Card';
+import StackLocation from './StackLocation';
 
 /**
  * A stack of cards.
@@ -84,6 +85,12 @@ import Card from './Card';
     return this.take(this.cards.length);
   }
 
+  public takeByName(names: string[]): Card[] {
+    const taken = this.cards.filter(x => names.includes(x.name));
+    this.cards = this.cards.filter(x => !names.includes(x.name));
+    return taken;
+  }
+
   /**
    * Add cards to the bottom of the deck.
    */
@@ -96,6 +103,14 @@ import Card from './Card';
    */
   addToTop(...cards: Card[]) {
     this.cards.push(...cards);
+  }
+
+  public add(stackLocation?: StackLocation, ...cards: Card[]) {
+    if (stackLocation === StackLocation.Bottom) {
+      this.addToBottom(...cards);
+    } else {
+      this.addToTop(...cards);
+    }
   }
 
   /**
