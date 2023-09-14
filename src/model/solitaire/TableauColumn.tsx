@@ -72,6 +72,19 @@ import { FaceCard } from "./Suit"
   clear() {
     this.cards.clear();
   }
+
+  /**
+   * Fixes the number of hidden cards to reveal the top one if necessary.
+   * Returns the card revealed, or undefined if nothing changed.
+   */
+  fixOrientations(): Card | undefined {
+    if (this.nHidden < this.cards.length) {
+      return; // All is well, at least one card is visible.
+    }
+
+    this.nHidden = this.cards.length - 1;
+    return this.cards.peek();
+  }
 }
 
 export default TableauColumn;

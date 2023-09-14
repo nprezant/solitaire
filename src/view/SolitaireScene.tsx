@@ -67,6 +67,8 @@ class SolitaireScene extends Phaser.Scene
                 case BoardEntity.WastePile:
                     model.resetWastePile();
                     break;
+                case BoardEntity.Tableau:
+                    model.fixTableauOrientations();
                 default:
                     break;
             }

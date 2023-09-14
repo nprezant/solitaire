@@ -104,13 +104,13 @@ import StackLocation from './StackLocation';
         break;
       case BoardEntity.Tableau:
         // Valid if it's allowed by the game rules.
-        if (this.tableau.isPlayable(card, data.to.index ?? 0)) {
+        if (this.tableau.isPlayable(card, data.to?.index ?? 0)) {
           e.accept();
         }
         break;
       case BoardEntity.Foundation:
         // Valid if it's allowed by the game rules.
-        if (this.foundations.isPlayable(card, data.to.index ?? 0)) {
+        if (this.foundations.isPlayable(card, data.to?.index ?? 0)) {
           e.accept();
         }
         break;
@@ -144,7 +144,7 @@ import StackLocation from './StackLocation';
     var names = data.cards; // Card names
     var cards: Card[];
 
-    switch (data.from.loc) {
+    switch (data.from?.loc) {
       case BoardEntity.DrawPile:
         cards = this.drawPile.takeByName(names);
         break;
@@ -162,7 +162,7 @@ import StackLocation from './StackLocation';
         return;
     }
 
-    switch (data.to.loc) {
+    switch (data.to?.loc) {
       case BoardEntity.DrawPile:
         this.drawPile.add(data.to.stackLocation, ...cards);
         break;
@@ -174,6 +174,7 @@ import StackLocation from './StackLocation';
         break;
       case BoardEntity.Foundation:
         this.foundations.addToFoundation(data.to.index, ...cards);
+        break;
       default:
         console.error('Cannot perform move to location ' + data.to);
         return;
@@ -233,14 +234,18 @@ import StackLocation from './StackLocation';
             throw new Error("Cannot setup board. Not enough cards.");
   
           let column = this.tableau.columns[ncol];
+
+          let shouldFlip = false;
   
           if (nrow !== nCardsInColumn - 1) {
             column.nHidden += 1;
+          } else {
+            shouldFlip = true;
           }
   
           column.cards.addToTop(card);
   
-          this.sendMoveMessage({ cards: [card.name], from: CardLocation.drawPile(), to: CardLocation.tableau(ncol), msg: "dealing" });
+          this.sendMoveMessage({ cards: [card.name], from: CardLocation.drawPile(), to: CardLocation.tableau(ncol), flip: shouldFlip, msg: "dealing" });
         }
       }
     }
@@ -263,6 +268,15 @@ import StackLocation from './StackLocation';
     const wasteCards = this.wastePile.takeAll();
     this.drawPile.addToTop(...wasteCards);
     this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: CardLocation.wastePile(), to: CardLocation.drawPile(), flip: true, msg: "resetting waste" });
+  }
+
+  public fixTableauOrientations() {
+    const flippedCards = this.tableau.fixOrientations();
+    this.sendMoveMessage({
+      cards: flippedCards.map(x => x.name),
+      flip: true,
+      msg: 'fixing tableau orientations',
+    });
   }
 
   /**

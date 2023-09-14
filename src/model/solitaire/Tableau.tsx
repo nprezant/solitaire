@@ -91,6 +91,16 @@ import TableauColumn from './TableauColumn'
       column.clear();
     }
   }
+
+  public fixOrientations() {
+    return this.columns.reduce((taken: Card[], column: TableauColumn): Card[] => {
+      const fixedCard = column.fixOrientations();
+      if (fixedCard !== undefined) {
+        taken.push(fixedCard);
+      }
+      return taken;
+    }, [] as Card[]);
+  }
 }
 
 export default Tableau;
