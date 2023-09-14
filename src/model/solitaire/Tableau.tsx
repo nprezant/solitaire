@@ -7,7 +7,7 @@ import TableauColumn from './TableauColumn'
  * Cards are played downwards in alternating colors.
  */
  class Tableau {
-  ncolumns = 5;
+  public static ncolumns = 7;
 
   /**
    * A playable column.
@@ -18,7 +18,7 @@ import TableauColumn from './TableauColumn'
    * Initializer
    */
   constructor() {
-    for (let i = 0; i < this.ncolumns; ++i) {
+    for (let i = 0; i < Tableau.ncolumns; ++i) {
       this.columns.push(new TableauColumn());
     }
   }

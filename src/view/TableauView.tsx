@@ -5,6 +5,7 @@ import PositionedView from "./PositionedView";
 import StackLocation from "../model/solitaire/StackLocation";
 import CardLocation from "../model/solitaire/CardLocation";
 import { TweenConfig } from "../model/solitaire/TypeUtils";
+import Tableau from "../model/solitaire/Tableau";
 
  class TableauView extends PositionedView {
    private columns: ColumnView[];
@@ -13,7 +14,7 @@ import { TweenConfig } from "../model/solitaire/TypeUtils";
      super(x, y);
 
      this.columns = [];
-     for (var i = 0; i < 5; ++i) {
+     for (var i = 0; i < Tableau.ncolumns; ++i) {
        const column = new ColumnView(scene, x, y, CardLocation.tableau(i));
        this.columns.push(column);
        x += 80; // width of a card + margin
