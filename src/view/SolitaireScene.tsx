@@ -53,23 +53,26 @@ class SolitaireScene extends Phaser.Scene
             y += 12;
         }
 
-        // This should be some kind of tap event (pointer down, then up without leaving)
-        this.input.on('dragstart',  (pointer: Phaser.Input.Pointer, gameObject: CardView) => {
+        this.input.on('pointerup', (pointer: Phaser.Input.Pointer, gameObject: CardView[]) => {
 
-            switch (gameObject.parentEntity) {
+            let parent = gameObject[0].parentEntity;
+            switch (parent) {
                 case BoardEntity.DrawPile:
                     model.drawStep();
                     break;
                 case BoardEntity.WastePile:
                     model.resetWastePile();
                     break;
-                case BoardEntity.Tableau:
-                    board.cardIsDragging(gameObject);
-                    break;
                 default:
-                    console.log('no dragstart event for object with parent entity ' + gameObject.parentEntity);
                     break;
             }
+
+        }, this);
+
+        // This should be some kind of tap event (pointer down, then up without leaving)
+        this.input.on('dragstart',  (pointer: Phaser.Input.Pointer, gameObject: CardView) => {
+
+            board.cardIsDragging(gameObject);
 
         }, this);
 
