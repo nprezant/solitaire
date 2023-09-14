@@ -22,11 +22,18 @@ import { Suit, SUIT_SIZE } from "./Suit";
   }
 
   /**
+   * Checks if a card is playable on a particular foundation
+   */
+  isPlayable(card: Card, n: integer): boolean {
+    return this.foundations[n].isPlayable(card);
+  }
+
+  /**
    * Checks which if any foundations this card can be played on.
    * @param {Card} card card to test
    * @return {boolean[]} true/false mask of playable foundations.
    */
-  isPlayable(card: Card): boolean[] {
+  wherePlayable(card: Card): boolean[] {
     const playable: boolean[] = Array(this.foundations.length).fill(false);
 
     for (const [i, foundation] of Object.entries(this.foundations)) {
@@ -34,6 +41,32 @@ import { Suit, SUIT_SIZE } from "./Suit";
     }
 
     return playable;
+  }
+
+  /**
+   * Checks if any of the foundations is topped by a particular card.
+   */
+  isCardOnTop(cardName: string): boolean {
+    for (const foundation of this.foundations) {
+      if (cardName === foundation.cards.peek()?.name) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  findCard(cardName: string): Card | undefined {
+    for (const foundation of this.foundations) {
+      
+      let card = foundation.findCard(cardName);
+      if (card !== undefined) {
+        return card;
+      }
+
+    }
+
+    return undefined;
   }
 
   /**

@@ -30,6 +30,12 @@ import Card from "./Card";
     return false;
   }
 
+  findCard(cardName: string): Card | undefined {
+
+    return this.cards.findCard(cardName);
+    
+  }
+
   /**
    * Number of cards in the stack.
    * @return {number}

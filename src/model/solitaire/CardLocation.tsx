@@ -23,6 +23,10 @@ class CardLocation {
     return s;
   }
 
+  public static none() {
+    return new CardLocation({ loc : BoardEntity.None });
+  }
+
   public static drawPile() {
     return new CardLocation({ loc: BoardEntity.DrawPile });
   }

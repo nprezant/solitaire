@@ -53,9 +53,13 @@ class SolitaireScene extends Phaser.Scene
             y += 12;
         }
 
-        this.input.on('pointerup', (pointer: Phaser.Input.Pointer, gameObject: CardView[]) => {
+        this.input.on('pointerup', (pointer: Phaser.Input.Pointer, objects: CardView[]) => {
 
-            let parent = gameObject[0].parentEntity;
+            if (objects.length === 0) {
+                return;
+            }
+            
+            let parent = objects[0].parentEntity;
             switch (parent) {
                 case BoardEntity.DrawPile:
                     model.drawStep();

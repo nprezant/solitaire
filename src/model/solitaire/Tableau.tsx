@@ -24,11 +24,18 @@ import TableauColumn from './TableauColumn'
   }
 
   /**
+   * Checks if a card is playable on a particular column
+   */
+  isPlayable(card: Card, n: integer): boolean {
+    return this.columns[n].isPlayable(card);
+  }
+
+  /**
    * Checks which if any columns a card is playable on.
    * @param {Card} card card to test
    * @return {boolean[]} true/false mask of playable columns.
    */
-  isPlayable(card: Card): boolean[] {
+  wherePlayable(card: Card): boolean[] {
     const playable = Array(this.columns.length).fill(false);
 
     for (const [i, column] of Object.entries(this.columns)) {
@@ -36,6 +43,34 @@ import TableauColumn from './TableauColumn'
     }
 
     return playable;
+  }
+
+  /**
+   * Checks if a card with `cardName` is visible in the tableau.
+   */
+  isCardVisible(cardName: string): boolean {
+    for (const column of this.columns) {
+
+      if (column.isCardVisible(cardName)) {
+        return true;
+      }
+
+    }
+
+    return false;
+  }
+
+  findCard(cardName: string): Card | undefined {
+    for (const column of this.columns) {
+
+      let card = column.findCard(cardName);
+      if (card !== undefined) {
+        return card;
+      }
+
+    }
+    
+    return undefined;
   }
 
   /**

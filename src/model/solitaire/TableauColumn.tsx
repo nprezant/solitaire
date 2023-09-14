@@ -42,6 +42,27 @@ import { FaceCard } from "./Suit"
   }
 
   /**
+   * Checks if a card with `cardName` is visible in the column.
+   */
+  isCardVisible(cardName: string): boolean {
+    for (let i = this.nHidden; i < this.cards.length; ++i) {
+
+      if (this.cards.at(i)?.name === cardName) {
+        return true;
+      }
+
+    }
+
+    return false;
+  }
+
+  findCard(cardName: string): Card | undefined {
+
+    return this.cards.findCard(cardName);
+    
+  }
+
+  /**
    * Clears the cards from this column.
    */
   clear() {

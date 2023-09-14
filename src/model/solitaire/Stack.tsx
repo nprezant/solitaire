@@ -61,7 +61,7 @@ import Card from './Card';
    * Undefined if there are no cards.
    */
   peek(): Card | undefined {
-    return this.cards[-1];
+    return this.cards[this.cards.length - 1];
   }
 
   /**
@@ -117,6 +117,19 @@ import Card from './Card';
    */
   at(index: number): Card | undefined {
     return this.cards[index];
+  }
+
+  /**
+   * Finds a card in this stack
+   */
+  findCard(name: string): Card | undefined {
+    let idx = this.cards.findIndex(x => x.name === name);
+
+    if (idx === -1) {
+      return undefined;
+    }
+
+    return this.cards[idx];
   }
 }
 

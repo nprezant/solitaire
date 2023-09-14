@@ -5,6 +5,8 @@ import BoardEntity from './BoardEntity';
 import MoveData from './MoveData';
 import { MembersOf } from './TypeUtils';
 import CardLocation from './CardLocation';
+import Card from './Card';
+import MoveEvent from './MoveEvent';
 
 /**
  * The main solitaire game.
@@ -39,91 +41,132 @@ import CardLocation from './CardLocation';
   public handleCardWasMovedByHand(data_: MembersOf<MoveData>) {
     let data = new MoveData(data_);
 
-    let accept = () => this.acceptHandMove(data);
-    let reject = () => this.rejectHandMove(data);
+    let e = new MoveEvent(
+      () => { this.acceptHandMove(data) },
+      () => { this.rejectHandMove(data) }
+    );
 
     let movingTo = data.to?.loc;
-    if (movingTo === undefined) { reject(); }
+    if (movingTo === undefined) { e.reject(); }
+
+    let cardName = data.cards[0];
+    if (cardName === undefined) { e.reject(); }
+
+    let card = this.findCard(cardName);
+    if (card === undefined) {
+      console.error('Could not find card ' + card + ' in deck.');
+      e.reject();
+    }
+
+    if (e.resolved) { return; }
+    card = card!; // If we have not resolved, card must not be undefined
 
     let movingFrom = data.from?.loc;
 
+    // First, check where we are moving from. Some easy rejections here.
+    switch (movingFrom) {
+      case BoardEntity.DrawPile:
+        // Cannot move from the draw pile.
+        e.reject();
+        break;
+      case BoardEntity.WastePile:
+        // Can only move from the top of the waste pile.
+        if (card !== this.wastePile.peek()) {
+          e.reject();
+        }
+        break;
+      case BoardEntity.Foundation:
+        // Can only move from the top of a foundation.
+        if (!this.foundations.isCardOnTop(card.name)) {
+          e.reject();
+        }
+        break;
+      case BoardEntity.Tableau:
+        // Can move any _visible_ card in the tableau
+        if (!this.tableau.isCardVisible(card.name)) {
+          e.reject();
+        }
+        break;
+      default:
+        e.reject();
+    }
+
+    if (e.resolved) { return; }
+
+    // Now, the fun part, is it okay to be moving to where we want?
     switch (movingTo) {
       case BoardEntity.DrawPile:
       case BoardEntity.WastePile:
         // Only valid if this is undoing the last move
         console.warn('moving to draw/waste piles by hand is undo-ing; not yet supported');
-        reject();
+        e.reject();
         break;
       case BoardEntity.Tableau:
-        // Maybe valid.
-        // Can generally move within tableau
-        // Can move from top of waste to tableau
-        // Can move from foundation to tableau if undo-ing
-
-        if (movingFrom === undefined) {
-          // Idk if this would happen
-          accept();
-          break;
-        }
-
-        switch (movingFrom) {
-          case BoardEntity.DrawPile:
-            reject();
-            break;
-          case BoardEntity.WastePile:
-            // todo check if it's we're at the top of the waste pile
-            accept();
-            break;
-          case BoardEntity.Foundation:
-            // todo check if the colors/numbers are okay
-            accept();
-            break;
-          case BoardEntity.Tableau:
-            // todo check if the colors/numbers are okay
-            accept();
-            break;
-          default:
-            reject();
+        // Valid if it's allowed by the game rules.
+        if (this.tableau.isPlayable(card, data.to.index ?? 0)) {
+          e.accept();
         }
         break;
       case BoardEntity.Foundation:
-        // Maybe valid.
-        // Can move tableau to foundation.
-        // Can move top of waste to foundation
-        // Otherwise, maybe if undoing
-        console.warn('lol what does progressing the game even mean');
-        accept();
+        // Valid if it's allowed by the game rules.
+        if (this.foundations.isPlayable(card, data.to.index ?? 0)) {
+          e.accept();
+        }
         break;
       default:
-        reject();
+        e.reject();
+    }
+
+    if (!e.resolved) {
+      e.reject();
     }
   }
 
   private acceptHandMove(data: MoveData) {
-    console.log('accepted move');
     this.sendMoveMessage(data);
   }
 
   private rejectHandMove(data: MoveData) {
     // Cancel the move by sending it back where it came from.
-    console.log('rejected move');
     let rejectedData = new MoveData(data);
+
+    rejectedData.msg ??= '';
+    rejectedData.msg += ' (rejected move to ' + data.to + ')';
     rejectedData.to = rejectedData.from;
-    rejectedData.from = { loc: BoardEntity.None };
+    rejectedData.from = CardLocation.none();
+
     this.sendMoveMessage(rejectedData);
+  }
+
+  private findCard(cardName: string) {
+    var card: Card | undefined;
+
+    card = this.drawPile.findCard(cardName);
+    if (card !== undefined) { return card; }
+
+    card = this.wastePile.findCard(cardName)
+    if (card !== undefined) { return card; }
+
+    card = this.tableau.findCard(cardName)
+    if (card !== undefined) { return card; }
+
+    card = this.foundations.findCard(cardName)
+    
+    return card;
   }
 
   setup() {
     // Draw pile
     this.drawPile.fillDeck();
-    // this.drawPile.shuffle();
+    this.drawPile.shuffle();
 
     // Update dependents with the shuffled deck.
-    // for (const card of this.drawPile) {
-    //   this.sendMoveMessage({ cards: [card.name], from: BoardEntity.DrawPile, to: BoardEntity.DrawPile, msg: "shuffling" });
-    // }
-    // or
-    this.sendMoveMessage({ cards: this.drawPile.cards.map(x => x.name), from: CardLocation.drawPile(), to: CardLocation.drawPile(), msg: "shuffling" });
+    this.sendMoveMessage({
+      cards: this.drawPile.cards.map(x => x.name),
+      from: CardLocation.drawPile(),
+      to: CardLocation.drawPile(),
+      msg: "shuffling"
+    });
 
     // Waste pile
     this.wastePile.clear();
