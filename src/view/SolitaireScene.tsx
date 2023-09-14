@@ -58,7 +58,7 @@ class SolitaireScene extends Phaser.Scene
             if (objects.length === 0) {
                 return;
             }
-            
+
             let parent = objects[0].parentEntity;
             switch (parent) {
                 case BoardEntity.DrawPile:
@@ -142,10 +142,6 @@ class SolitaireScene extends Phaser.Scene
 
         // Setup the board
         model.setup();
-    }
-
-    private sendCardPickedUp() {
-
     }
 }
 

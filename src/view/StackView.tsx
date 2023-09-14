@@ -31,6 +31,8 @@ import { TweenConfig } from "../model/solitaire/TypeUtils";
 
     this.cards.push(card);
 
+    card.flipIfNeeded();
+
     if (this.repositionAfterAdd) {
       this.repositionAllCards(tweenConfig);
     } else {

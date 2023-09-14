@@ -58,6 +58,8 @@ import { TweenConfig } from "../model/solitaire/TypeUtils";
     }
 
     card.draggedCards.slice(0).reverse().map(c => this.removeCardFromParentCollection(c));
+
+    card.draggedCards.map(c => c.bringToTop());
   }
 
   private removeCardFromParentCollection(card: CardView, tweenConfig?: TweenConfig) {
@@ -106,6 +108,9 @@ import { TweenConfig } from "../model/solitaire/TypeUtils";
 
     const card = this.getCard(data.cards[cardIndex])!
     card.bringToTop();
+    if (data.flip) {
+      card.isFaceUp = !card.isFaceUp;
+    }
 
     // Remove from exising collection
     this.removeCardFromParentCollection(card, data.tweenConfig);

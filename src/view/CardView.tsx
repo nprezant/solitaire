@@ -22,6 +22,19 @@ class CardView extends Phaser.GameObjects.Sprite {
 
   public cardName: string;
 
+  public faceFrame: string | number;
+  public backFrame: string | number;
+
+  public isFaceUp: boolean = false;
+
+  private get currentFrame() {
+    return this.isFaceUp ? this.faceFrame : this.backFrame;
+  }
+
+  private swapFrame() {
+    this.setFrame(this.currentFrame);
+  }
+
   public dragAlongCards: CardView[] = [];
 
   public get draggedCardNames(): string[] {
@@ -78,9 +91,11 @@ class CardView extends Phaser.GameObjects.Sprite {
     Object.assign(this._location, value);
   }
 
-  constructor(scene: Phaser.Scene, x: number, y: number, cardstexture: string | Phaser.Textures.Texture, frame?: string | number) {
+  constructor(scene: Phaser.Scene, x: number, y: number, cardstexture: string | Phaser.Textures.Texture, frame: string | number) {
     super(scene, x, y, cardstexture, frame);
     this.cardName = frame as string;
+    this.faceFrame = frame;
+    this.backFrame = 'back';
     this.setScale(CardView.displayWidth / this.width);
     scene.add.existing(this);
   }
@@ -101,6 +116,36 @@ class CardView extends Phaser.GameObjects.Sprite {
       additionalCard.x += deltaX;
       additionalCard.y += deltaY;
     }
+  }
+
+  public flipIfNeeded() {
+    if (this.frame.name !== this.currentFrame) {
+      this.flip();
+    }
+  }
+
+  private flip() {
+    const originalScaleX = this.scaleX;
+
+    this.scene.tweens.chain({
+      targets: this,
+      tweens: [
+        {
+          scaleX: 0.01,
+          ease: 'power2',
+          duration: 100,
+        },
+        {
+          onActive: () => { this.swapFrame(); },
+          duration: 0,
+        },
+        {
+          scaleX: originalScaleX,
+          ease: 'power1',
+          duration: 100,
+        },
+      ]
+    })
   }
 }
 

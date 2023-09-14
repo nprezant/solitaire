@@ -252,7 +252,7 @@ import StackLocation from './StackLocation';
   drawStep() {
     const drawnCards = this.drawPile.take(this.drawRate);
     this.wastePile.addToTop(...drawnCards);
-    this.sendMoveMessage({cards: drawnCards.map(x => x.name), from: CardLocation.drawPile(), to: CardLocation.wastePile(), msg: "drawing" });
+    this.sendMoveMessage({cards: drawnCards.map(x => x.name), from: CardLocation.drawPile(), to: CardLocation.wastePile(), flip: true, msg: "drawing" });
   }
 
   /**
@@ -262,7 +262,7 @@ import StackLocation from './StackLocation';
     if (!this.drawPile.empty()) { return; }
     const wasteCards = this.wastePile.takeAll();
     this.drawPile.addToTop(...wasteCards);
-    this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: CardLocation.wastePile(), to: CardLocation.drawPile(), msg: "resetting waste" });
+    this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: CardLocation.wastePile(), to: CardLocation.drawPile(), flip: true, msg: "resetting waste" });
   }
 
   /**

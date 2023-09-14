@@ -6,10 +6,11 @@ class MoveData {
   public cards!: string[]; // Cards to move
   public from!: CardLocation; // Where the card is/was
   public to!: CardLocation; // Where the card is heading
+  public flip?: boolean; // Does this card need to be flipped
   public msg?: string; // Why it is moving
   public tweenConfig?: TweenConfig; // Specific configuration for this movement
 
-  constructor(data: MembersOf<MoveData>) {
+  constructor(data: Partial<MoveData>) {
     Object.assign(this, data);
   }
 
