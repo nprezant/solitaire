@@ -25,7 +25,11 @@ class CardView extends Phaser.GameObjects.Sprite {
   public dragAlongCards: CardView[] = [];
 
   public get draggedCardNames(): string[] {
-    return [this.cardName].concat(this.dragAlongCards.map(x => x.cardName));
+    return this.draggedCards.map(x => x.cardName);
+  }
+
+  public get draggedCards(): CardView[] {
+    return [this as CardView].concat(this.dragAlongCards);
   }
 
   public dragDidEnd() {
@@ -84,10 +88,17 @@ class CardView extends Phaser.GameObjects.Sprite {
   }
 
   public didDragTo(x: number, y: number) {
+
+    let deltaX = x - this.x;
+    let deltaY = y - this.y;
+
     this.x = x;
     this.y = y;
 
-    // TODO also update drag dependencies
+    for (const additionalCard of this.dragAlongCards) {
+      additionalCard.x += deltaX;
+      additionalCard.y += deltaY;
+    }
   }
 }
 

@@ -40,10 +40,17 @@ import CardLocation from "../model/solitaire/CardLocation";
 
   public removeCard(card: CardView) {
     let preFilterLength = this.cards.length;
-    this.cards = this.cards.filter(x => x.cardName !== card.cardName); // Should this use another compare function?
+    let isAtEnd = card === this.cards[this.cards.length - 1];
+    this.cards = this.cards.filter(x => x.cardName !== card.cardName);
 
-    if (preFilterLength !== this.cards.length) {
-      this.repositionAllCards(); // A card was removed
+    if (preFilterLength === this.cards.length) {
+      return; // Nothing happened
+    }
+
+    if (!isAtEnd) {
+      this.repositionAllCards(); // A card was removed from the middle
+    } else {
+      this.repositionDropZone();
     }
   }
 

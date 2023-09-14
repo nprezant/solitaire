@@ -55,11 +55,8 @@ import StackView from "./StackView";
       let dragAlongCards = this.tableau.cardsOnTopOf(card);
       card.dragAlongCards = dragAlongCards;
     }
-    this.removeCardFromParentCollection(card);
-  }
 
-  public cardIsDoneDragging(card: CardView) {
-    this.addCardToNewCollection(card);
+    card.draggedCards.slice(0).reverse().map(c => this.removeCardFromParentCollection(c));
   }
 
   private removeCardFromParentCollection(card: CardView) {
