@@ -6,8 +6,8 @@ import StackView from "./StackView";
 class ColumnView extends StackView {
   
   protected positionOfNthCard(n: number): Point {
-    const cardOffset = CardView.DisplayWidth / 3;
-    return new Point(this.x, this.y + (this.cards.length * cardOffset));
+    const cardOffset = CardView.displayWidth / 3;
+    return new Point(this.x, this.y + (n * cardOffset));
   }
 }
 

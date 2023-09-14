@@ -2,11 +2,9 @@ import Phaser from 'phaser';
 import SolitaireModel from '../model/solitaire/SolitaireModel';
 import BoardEntity from '../model/solitaire/BoardEntity';
 import CardView from './CardView'
-import DrawPileView from './DrawPileView';
 import SolitaireBoardView from './SolitaireBoardView';
-import StackLocation from '../model/solitaire/StackLocation';
 import { MoveData } from '../model/solitaire/MoveData';
-import Card from '../model/solitaire/Card';
+import { MoveDuration } from './Animations';
 
 class SolitaireScene extends Phaser.Scene
 {
@@ -54,7 +52,8 @@ class SolitaireScene extends Phaser.Scene
             y += 12;
         }
 
-        this.input.on('dragstart',  (pointer: any, gameObject: CardView) => {
+        // This should be some kind of tap event (pointer down, then up without leaving)
+        this.input.on('dragstart',  (pointer: Phaser.Input.Pointer, gameObject: CardView) => {
 
             switch (gameObject.parentEntity) {
                 case BoardEntity.DrawPile:
@@ -63,14 +62,18 @@ class SolitaireScene extends Phaser.Scene
                 case BoardEntity.WastePile:
                     model.resetWastePile();
                     break;
+                case BoardEntity.Tableau:
+                    board.cardIsDragging(gameObject);
+                    break;
                 default:
-                    console.log('dragging not supported for object with parent entity ' + gameObject.parentEntity);
+                    console.log('no dragstart event for object with parent entity ' + gameObject.parentEntity);
                     break;
             }
 
         }, this);
 
-        this.input.on('drag', function (pointer: any, gameObject: Phaser.GameObjects.Graphics, dragX: number, dragY: number) {
+
+        this.input.on('drag', function (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Graphics, dragX: number, dragY: number) {
 
             // Drags with the pointer
             gameObject.x = dragX;
@@ -78,11 +81,46 @@ class SolitaireScene extends Phaser.Scene
 
         });
 
+        this.input.on('dragleave', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject, dropZone: Phaser.GameObjects.Zone) =>
+        {
+
+            console.log('dragleave');
+            // dropZone.clearTint();
+
+        });
+
+        this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: Phaser.GameObjects.Zone) =>
+        {
+            this.tweens.add({
+                targets: gameObject,
+                x: dropZone.x,
+                y: dropZone.y,
+                ease: 'quart.out',
+                duration: MoveDuration / 2,
+            });
+            gameObject.bringToTop();
+        });
+
+        this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropped: boolean) =>
+        {
+            if (!dropped)
+            {
+                this.tweens.add({
+                    targets: gameObject,
+                    x: gameObject.input!.dragStartX,
+                    y: gameObject.input!.dragStartY,
+                    ease: 'quart.out',
+                    duration: MoveDuration / 2,
+                });
+            }
+
+        });
+
         // Setup solitaire model
         const model = new SolitaireModel(3);
 
         // Setup the board state
-        const board = new SolitaireBoardView(0, 0, cards);
+        const board = new SolitaireBoardView(0, 0, cards, this);
 
         // Connect model and view
         model.moveHook = (data: MoveData) => { board.handleCardsMoved(data); };

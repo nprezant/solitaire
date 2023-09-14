@@ -2,10 +2,10 @@ import BoardEntity from "../model/solitaire/BoardEntity";
 import CardView from "./CardView";
 import DrawPileView from "./DrawPileView";
 import FoundationView from "./FoundationView";
-import StackLocation from "../model/solitaire/StackLocation";
 import TableauView from "./TableauView";
 import WastePileView from "./WastePileView";
 import { MoveData } from "../model/solitaire/MoveData";
+import StackLocation from "../model/solitaire/StackLocation";
 
 /**
  * Service for managing the solitaire board.
@@ -22,15 +22,15 @@ import { MoveData } from "../model/solitaire/MoveData";
   private tableau: TableauView;
   private foundation: FoundationView;
 
-  constructor(x: number, y: number, cards: CardView[]) {
+  constructor(x: number, y: number, cards: CardView[], scene: Phaser.Scene) {
     this.x = x;
     this.y = y;
     this.cards = cards;
 
-    this.drawPile = new DrawPileView(450, 100);
-    this.wastePile = new WastePileView(350, 100);
-    this.tableau = new TableauView(100, 300);
-    this.foundation = new FoundationView(100, 200);
+    this.drawPile = new DrawPileView(450, 100, scene);
+    this.wastePile = new WastePileView(350, 100, scene);
+    this.tableau = new TableauView(100, 300, scene);
+    this.foundation = new FoundationView(100, 200, scene);
   }
 
   private getCard(name: string) {
@@ -48,14 +48,15 @@ import { MoveData } from "../model/solitaire/MoveData";
     }
   }
 
-  private moveOneCard(data: MoveData, cardIndex: number) {
+  public cardIsDragging(card: CardView) {
+    this.removeCardFromParentCollection(card);
+  }
 
-    console.log('moving card ' + data.cards[cardIndex] + ' from ' + data.from + ' to ' + data.to + ': ' + data.msg);
+  public cardIsDoneDragging(card: CardView) {
+    this.addCardToNewCollection(card);
+  }
 
-    const card = this.getCard(data.cards[cardIndex])!
-    card.bringToTop();
-
-    // Remove from exising collection
+  private removeCardFromParentCollection(card: CardView) {
     switch (card.parentEntity) {
       case BoardEntity.DrawPile:
         this.drawPile.removeCard(card);
@@ -70,29 +71,44 @@ import { MoveData } from "../model/solitaire/MoveData";
         this.foundation.removeCard(card);
         break;
       default:
-        console.warn('no valid target entity found for ' + data.to);;
+        console.warn('no valid target entity found for ' + card.parentEntity);;
         break;
     }
+  }
+
+  private addCardToNewCollection(card: CardView, toIndex?: number, toLocation?: StackLocation) {
+    switch (card.parentEntity) {
+      case BoardEntity.DrawPile:
+        this.drawPile.addCard(card, toLocation);
+        break;
+      case BoardEntity.WastePile:
+        this.wastePile.addCard(card, toLocation);
+        break;
+      case BoardEntity.Tableau:
+        this.tableau.addCard(card, toIndex);
+        break;
+      case BoardEntity.Foundation:
+        this.foundation.addCard(card, toIndex);
+        break;
+      default:
+        console.warn('no valid target collection found for ' + card.parentEntity);;
+        break;
+    }
+  }
+
+  private moveOneCard(data: MoveData, cardIndex: number) {
+
+    console.log('moving card ' + data.cards[cardIndex] + ' from ' + data.from + ' to ' + data.to + ': ' + data.msg);
+
+    const card = this.getCard(data.cards[cardIndex])!
+    card.bringToTop();
+
+    // Remove from exising collection
+    this.removeCardFromParentCollection(card);
 
     // Add to new collection
     card.parentEntity = data.to;
-    switch (data.to) {
-      case BoardEntity.DrawPile:
-        this.drawPile.addCard(card, data.toLocation);
-        break;
-      case BoardEntity.WastePile:
-        this.wastePile.addCard(card, data.toLocation);
-        break;
-      case BoardEntity.Tableau:
-        this.tableau.addCard(card, data.toIndex);
-        break;
-      case BoardEntity.Foundation:
-        this.foundation.addCard(card, data.toIndex);
-        break;
-      default:
-        console.warn('no valid target entity found for ' + data.to);;
-        break;
-    }
+    this.addCardToNewCollection(card, data.toIndex, data.toLocation);
   }
 }
 

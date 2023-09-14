@@ -6,12 +6,12 @@ import StackView from "./StackView";
  class FoundationView extends PositionedView {
    private stacks: StackView[];
 
-   constructor(x: number, y: number) {
+   constructor(x: number, y: number, scene: Phaser.Scene) {
      super(x, y);
 
      this.stacks = [];
      for (var i = 0; i < 4; ++i) {
-       const stack = new StackView(x, y);
+       const stack = new StackView(x, y, scene);
        this.stacks.push(stack);
        x += 80; // width of a card + margin
      }

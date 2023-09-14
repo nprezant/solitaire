@@ -5,7 +5,11 @@ import BoardEntity from "../model/solitaire/BoardEntity";
  */
 class CardView extends Phaser.GameObjects.Sprite {
 
-  public static DisplayWidth: number = 48;
+  public static mmWidth = 59; // Official width in mm
+  public static mmHeight = 89; // Official height in mm
+
+  public static displayWidth: number = 48;
+  public static displayHeight: number = this.displayWidth * this.mmHeight / this.mmWidth;
 
   private _parentEntity: BoardEntity | undefined;
   private _canBeMoved: boolean = false;
@@ -35,7 +39,7 @@ class CardView extends Phaser.GameObjects.Sprite {
   constructor(scene: Phaser.Scene, x: number, y: number, cardstexture: string | Phaser.Textures.Texture, frame?: string | number) {
     super(scene, x, y, cardstexture, frame);
     this.cardName = frame as string;
-    this.setScale(CardView.DisplayWidth / this.width);
+    this.setScale(CardView.displayWidth / this.width);
     scene.add.existing(this);
   }
 

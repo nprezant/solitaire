@@ -11,16 +11,19 @@ import StackLocation from "../model/solitaire/StackLocation";
 
   protected cards: CardView[];
   protected repositionAfterAdd: boolean = false;
+  protected dropZone: Phaser.GameObjects.Zone;
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, scene: Phaser.Scene) {
     super(x, y);
     this.cards = [];
+    this.dropZone = scene.add.zone(x, y, CardView.displayWidth, CardView.displayHeight);
+    this.dropZone.setInteractive({ dropZone: true });
   }
 
   public addCard(card: CardView, location: StackLocation | undefined) {
     
     if (location === StackLocation.Top) {
-      card.scene.children.bringToTop(card);
+      card.bringToTop();
     }
 
     this.cards.push(card);
@@ -29,11 +32,17 @@ import StackLocation from "../model/solitaire/StackLocation";
       this.repositionAllCards();
     } else {
       this.repositionCard(this.cards.length - 1);
+      this.repositionDropZone();
     }
   }
 
   public removeCard(card: CardView) {
+    let preFilterLength = this.cards.length;
     this.cards = this.cards.filter(x => x.cardName !== card.cardName); // Should this use another compare function?
+    
+    if (preFilterLength !== this.cards.length) {
+      this.repositionAllCards(); // A card was removed
+    }
   }
 
   // Override this to change where the next card gets added to the stack
@@ -56,11 +65,24 @@ import StackLocation from "../model/solitaire/StackLocation";
     });
   }
 
+  // Where the next card would go.
+  private dropPoint() {
+    return this.positionOfNthCard(this.cards.length);
+  }
+
+  private repositionDropZone() {
+    const p = this.dropPoint();
+    this.dropZone.x = p.x;
+    this.dropZone.y = p.y;
+  }
+
   private repositionAllCards() {
 
     for (var i = 0; i < this.cards.length; ++i) {
       this.repositionCard(i);
     }
+
+    this.repositionDropZone();
 
   }
 }

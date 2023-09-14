@@ -7,12 +7,12 @@ import StackLocation from "../model/solitaire/StackLocation";
  class TableauView extends PositionedView {
    private columns: ColumnView[];
 
-   constructor(x: number, y: number) {
+   constructor(x: number, y: number, scene: Phaser.Scene) {
      super(x, y);
 
      this.columns = [];
      for (var i = 0; i < 5; ++i) {
-       const column = new ColumnView(x, y);
+       const column = new ColumnView(x, y, scene);
        this.columns.push(column);
        x += 80; // width of a card + margin
      }

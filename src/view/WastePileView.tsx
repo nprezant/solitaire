@@ -10,7 +10,7 @@ import StackView from "./StackView";
     const len = this.cards.length;
 
     if (n > len - 4) {
-      const cardOffset = CardView.DisplayWidth / 3;
+      const cardOffset = CardView.displayWidth / 3;
       const nFromTop = 3 - (len - n);
       const x = this.x + (nFromTop * cardOffset);
       return new Point(x, this.y);
