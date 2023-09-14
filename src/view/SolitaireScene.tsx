@@ -91,33 +91,34 @@ class SolitaireScene extends Phaser.Scene
 
         this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: CardDropZone) =>
         {
-            // this.tweens.add({
-            //     targets: gameObject,
-            //     x: dropZone.x,
-            //     y: dropZone.y,
-            //     ease: 'quart.out',
-            //     duration: MoveDuration / 2,
-            // });
-            // gameObject.bringToTop();this
-
             console.log('dropped')
-            model.handleCardWasMovedByHand({ cards: gameObject.draggedCardNames, from: gameObject.location, to: dropZone.location, msg: "dropped"});
+            model.handleCardWasMovedByHand({
+                cards: gameObject.draggedCardNames,
+                from: gameObject.location,
+                to: dropZone.location,
+                msg: "dropped",
+                tweenConfig: {
+                    ease: 'quart.out',
+                    duration: MoveDuration / 2,
+                },
+            });
         });
 
         this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropped: boolean) =>
         {
             if (!dropped)
             {
-                // this.tweens.add({
-                //     targets: gameObject,
-                //     x: gameObject.input!.dragStartX,
-                //     y: gameObject.input!.dragStartY,
-                //     ease: 'quart.out',
-                //     duration: MoveDuration / 2,
-                // });
-
                 // Drop cancelled; card is sent back where it started.
-                model.handleCardWasMovedByHand({ cards: gameObject.draggedCardNames, from: gameObject.location, to: gameObject.location, msg: "drop cancelled" });
+                model.handleCardWasMovedByHand({
+                    cards: gameObject.draggedCardNames,
+                    from: gameObject.location,
+                    to: gameObject.location,
+                    msg: "drop cancelled",
+                    tweenConfig: {
+                        ease: 'quart.out',
+                        duration: MoveDuration / 2,
+                    }
+                });
             }
 
             gameObject.dragDidEnd();

@@ -1,12 +1,13 @@
 import BoardEntity from './BoardEntity';
 import CardLocation from './CardLocation';
-import { MembersOf } from './TypeUtils';
+import { MembersOf, TweenConfig } from './TypeUtils';
 
 class MoveData {
-  public cards!: string[];
-  public from!: CardLocation;
-  public to!: CardLocation;
-  public msg?: string;
+  public cards!: string[]; // Cards to move
+  public from!: CardLocation; // Where the card is/was
+  public to!: CardLocation; // Where the card is heading
+  public msg?: string; // Why it is moving
+  public tweenConfig?: TweenConfig; // Specific configuration for this movement
 
   constructor(data: MembersOf<MoveData>) {
     Object.assign(this, data);

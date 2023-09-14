@@ -5,6 +5,7 @@ import PositionedView from "./PositionedView";
 import StackLocation from "../model/solitaire/StackLocation";
 import CardDropZone from "./CardDropZone";
 import CardLocation from "../model/solitaire/CardLocation";
+import { TweenConfig } from "../model/solitaire/TypeUtils";
 
 /**
  * Stack of cards.
@@ -22,23 +23,23 @@ import CardLocation from "../model/solitaire/CardLocation";
     this.dropZone.setInteractive({ dropZone: true });
   }
 
-  public addCard(card: CardView, location: StackLocation | undefined) {
+  public addCard(card: CardView, tweenConfig?: TweenConfig) {
     
-    if (location === StackLocation.Top) {
+    if (card.stackLocation === StackLocation.Top) {
       card.bringToTop();
     }
 
     this.cards.push(card);
 
     if (this.repositionAfterAdd) {
-      this.repositionAllCards();
+      this.repositionAllCards(tweenConfig);
     } else {
-      this.repositionCard(this.cards.length - 1);
+      this.repositionCard(this.cards.length - 1, tweenConfig);
       this.repositionDropZone();
     }
   }
 
-  public removeCard(card: CardView) {
+  public removeCard(card: CardView, tweenConfig?: TweenConfig) {
     let preFilterLength = this.cards.length;
     let isAtEnd = card === this.cards[this.cards.length - 1];
     this.cards = this.cards.filter(x => x.cardName !== card.cardName);
@@ -48,7 +49,7 @@ import CardLocation from "../model/solitaire/CardLocation";
     }
 
     if (!isAtEnd) {
-      this.repositionAllCards(); // A card was removed from the middle
+      this.repositionAllCards(tweenConfig); // A card was removed from the middle
     } else {
       this.repositionDropZone();
     }
@@ -71,18 +72,24 @@ import CardLocation from "../model/solitaire/CardLocation";
     return new Point(this.x, this.y);
   }
 
-  private repositionCard(index: number) {
+  private repositionCard(index: number, tweenConfig?: TweenConfig) {
 
     const p = this.positionOfNthCard(index);
     const card = this.cards[index];
 
-    card.scene.tweens.add({
+    let fullTweenConfig = {
       targets: card,
       x: p.x,
       y: p.y,
       ease: 'cubic.out',
       duration: MoveDuration,
-    });
+    };
+
+    if (tweenConfig !== undefined) {
+      Object.assign(fullTweenConfig, tweenConfig);
+    }
+
+    card.scene.tweens.add(fullTweenConfig);
   }
 
   // Where the next card would go.
@@ -96,10 +103,10 @@ import CardLocation from "../model/solitaire/CardLocation";
     this.dropZone.y = p.y;
   }
 
-  private repositionAllCards() {
+  private repositionAllCards(tweenConfig?: TweenConfig) {
 
     for (var i = 0; i < this.cards.length; ++i) {
-      this.repositionCard(i);
+      this.repositionCard(i, tweenConfig);
     }
 
     this.repositionDropZone();

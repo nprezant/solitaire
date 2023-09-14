@@ -7,6 +7,7 @@ import WastePileView from "./WastePileView";
 import MoveData from "../model/solitaire/MoveData";
 import StackLocation from "../model/solitaire/StackLocation";
 import StackView from "./StackView";
+import { TweenConfig } from "../model/solitaire/TypeUtils";
 
 /**
  * Service for managing the solitaire board.
@@ -59,19 +60,19 @@ import StackView from "./StackView";
     card.draggedCards.slice(0).reverse().map(c => this.removeCardFromParentCollection(c));
   }
 
-  private removeCardFromParentCollection(card: CardView) {
+  private removeCardFromParentCollection(card: CardView, tweenConfig?: TweenConfig) {
     switch (card.parentEntity) {
       case BoardEntity.DrawPile:
-        this.drawPile.removeCard(card);
+        this.drawPile.removeCard(card, tweenConfig);
         break;
       case BoardEntity.WastePile:
-        this.wastePile.removeCard(card);
+        this.wastePile.removeCard(card, tweenConfig);
         break;
       case BoardEntity.Tableau:
-        this.tableau.removeCard(card);
+        this.tableau.removeCard(card, tweenConfig);
         break;
       case BoardEntity.Foundation:
-        this.foundation.removeCard(card);
+        this.foundation.removeCard(card, tweenConfig);
         break;
       default:
         console.warn('no valid target entity found for ' + card.parentEntity);;
@@ -79,19 +80,19 @@ import StackView from "./StackView";
     }
   }
 
-  private addCardToNewCollection(card: CardView, toIndex?: number, toLocation?: StackLocation) {
+  private addCardToNewCollection(card: CardView, tweenConfig?: TweenConfig) {
     switch (card.parentEntity) {
       case BoardEntity.DrawPile:
-        this.drawPile.addCard(card, toLocation);
+        this.drawPile.addCard(card, tweenConfig);
         break;
       case BoardEntity.WastePile:
-        this.wastePile.addCard(card, toLocation);
+        this.wastePile.addCard(card, tweenConfig);
         break;
       case BoardEntity.Tableau:
-        this.tableau.addCard(card, toIndex);
+        this.tableau.addCard(card, tweenConfig);
         break;
       case BoardEntity.Foundation:
-        this.foundation.addCard(card, toIndex);
+        this.foundation.addCard(card, tweenConfig);
         break;
       default:
         console.warn('no valid target collection found for ' + card.parentEntity);;
@@ -107,11 +108,11 @@ import StackView from "./StackView";
     card.bringToTop();
 
     // Remove from exising collection
-    this.removeCardFromParentCollection(card);
+    this.removeCardFromParentCollection(card, data.tweenConfig);
 
     // Add to new collection
     card.location = data.to;
-    this.addCardToNewCollection(card, data.to.index, data.to.stackLocation);
+    this.addCardToNewCollection(card, data.tweenConfig);
   }
 }
 

@@ -52,6 +52,14 @@ class CardView extends Phaser.GameObjects.Sprite {
     return this._location.loc;
   }
 
+  public get stackLocation(): StackLocation | undefined {
+    return this._location.stackLocation;
+  }
+
+  public set stackLocation(value: StackLocation | undefined) {
+    this._location.stackLocation = value;
+  }
+
   public set parentEntity(value: BoardEntity) {
     this._location.loc = value;
     this._location.stackLocation = undefined;
@@ -60,12 +68,6 @@ class CardView extends Phaser.GameObjects.Sprite {
 
   public set parentEntityIndex(value: integer) {
     this._location.index = value;
-    this._location.stackLocation = undefined;
-  }
-
-  public set parentEntityPosition(value: StackLocation) {
-    this._location.stackLocation = value;
-    this._location.index = undefined;
   }
 
   public get location(): CardLocation {
