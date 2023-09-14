@@ -24,7 +24,7 @@ class SolitaireScene extends Phaser.Scene
     {
         this.add.image(400, 300, 'bg');
 
-        this.add.text(16, 16, 'Bring to Top on Drag').setFontSize(24).setShadow(1, 1);
+        // this.add.text(16, 16, 'Solitaire').setFontSize(24).setShadow(1, 1);
 
         // Setup the deck of cards
         const allFrames = this.textures.get('cards').getFrameNames(); // includes back and joker
