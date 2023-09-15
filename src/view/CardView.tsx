@@ -20,6 +20,8 @@ class CardView extends Phaser.GameObjects.Sprite {
   // Whether or not this card can be moved
   private _canBeMoved: boolean = false;
 
+  public isDragging: boolean = false;
+
   public cardName: string;
 
   public faceFrame: string | number;
@@ -47,6 +49,7 @@ class CardView extends Phaser.GameObjects.Sprite {
 
   public dragDidEnd() {
     this.dragAlongCards.length = 0;
+    this.isDragging = false;
   }
 
   public get canBeMoved() {
@@ -79,15 +82,19 @@ class CardView extends Phaser.GameObjects.Sprite {
     this._location.index = undefined;
   }
 
-  public set parentEntityIndex(value: integer) {
+  public set parentEntityIndex(value: integer | undefined) {
     this._location.index = value;
+  }
+
+  public get parentEntityIndex() {
+    return this._location.index;
   }
 
   public get location(): CardLocation {
     return this._location;
   }
 
-  public set location(value: MembersOf<CardLocation>) {
+  public set location(value: Partial<CardLocation>) {
     Object.assign(this._location, value);
   }
 

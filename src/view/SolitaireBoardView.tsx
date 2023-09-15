@@ -51,6 +51,8 @@ import { TweenConfig } from "../model/solitaire/TypeUtils";
   }
 
   public cardIsDragging(card: CardView) {
+    card.isDragging = true;
+
     // Card may have associated cards to be dragged alongside it
     if (card.parentEntity === BoardEntity.Tableau) {
       let dragAlongCards = this.tableau.cardsOnTopOf(card);
@@ -116,7 +118,7 @@ import { TweenConfig } from "../model/solitaire/TypeUtils";
     this.removeCardFromParentCollection(card, data.tweenConfig);
 
     // Add to new collection
-    card.location = data.to;
+    card.location = data.to ?? { };
     this.addCardToNewCollection(card, data.tweenConfig);
   }
 }

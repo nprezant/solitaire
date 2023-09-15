@@ -53,13 +53,22 @@ class SolitaireScene extends Phaser.Scene
             y += 12;
         }
 
+        this.input.dragDistanceThreshold = 3;
+
         this.input.on('pointerup', (pointer: Phaser.Input.Pointer, objects: CardView[]) => {
 
             if (objects.length === 0) {
                 return;
             }
 
-            let parent = objects[0].parentEntity;
+            let card = objects[0];
+
+            if (card.isDragging) {
+                return;
+            }
+
+            let parent = card.parentEntity;
+
             switch (parent) {
                 case BoardEntity.DrawPile:
                     model.drawStep();
@@ -68,7 +77,7 @@ class SolitaireScene extends Phaser.Scene
                     model.resetWastePile();
                     break;
                 case BoardEntity.Tableau:
-                    model.fixTableauOrientations();
+                    model.fixTableauOrientations(card.parentEntityIndex);
                 default:
                     break;
             }

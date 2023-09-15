@@ -92,7 +92,17 @@ import TableauColumn from './TableauColumn'
     }
   }
 
-  public fixOrientations() {
+  public fixOrientations(n: integer) {
+    const fixedCard = this.columns[n]?.fixOrientations();
+
+    if (fixedCard !== undefined) {
+      return [fixedCard];
+    }
+
+    return [];
+  }
+
+  public fixAllOrientations(): Card[] {
     return this.columns.reduce((taken: Card[], column: TableauColumn): Card[] => {
       const fixedCard = column.fixOrientations();
       if (fixedCard !== undefined) {

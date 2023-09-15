@@ -270,8 +270,11 @@ import StackLocation from './StackLocation';
     this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: CardLocation.wastePile(), to: CardLocation.drawPile(), flip: true, msg: "resetting waste" });
   }
 
-  public fixTableauOrientations() {
-    const flippedCards = this.tableau.fixOrientations();
+  public fixTableauOrientations(n: integer | undefined) {
+    const flippedCards =
+      (n === undefined)
+      ? this.tableau.fixAllOrientations()
+      : this.tableau.fixOrientations(n);
     this.sendMoveMessage({
       cards: flippedCards.map(x => x.name),
       flip: true,
