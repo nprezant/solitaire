@@ -63,6 +63,7 @@ class SolitaireScene extends Phaser.Scene
             }
 
             let card = objects[0];
+            if (!(card instanceof CardView)) { return ;}
             card.registerEvent('pointerdown');
         });
 
@@ -74,6 +75,7 @@ class SolitaireScene extends Phaser.Scene
             }
 
             let card = objects[0];
+            if (!(card instanceof CardView)) { return ;}
             card.registerEvent('pointerup');
 
             if (!card.wasClicked()) {
@@ -106,6 +108,7 @@ class SolitaireScene extends Phaser.Scene
         // This should be some kind of tap event (pointer down, then up without leaving)
         this.input.on('dragstart',  (pointer: Phaser.Input.Pointer, gameObject: CardView) => {
 
+            if (!(gameObject instanceof CardView)) { return ;}
             gameObject.registerEvent('dragstart');
             board.cardIsDragging(gameObject);
 
@@ -115,6 +118,7 @@ class SolitaireScene extends Phaser.Scene
         this.input.on('drag', function (pointer: Phaser.Input.Pointer, gameObject: CardView, dragX: number, dragY: number) {
 
             // Drags with the pointer
+            if (!(gameObject instanceof CardView)) { return ;}
             gameObject.registerEvent('drag');
             gameObject.didDragTo(dragX, dragY);
 
@@ -122,6 +126,7 @@ class SolitaireScene extends Phaser.Scene
 
         this.input.on('dragleave', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: Phaser.GameObjects.Zone) =>
         {
+            if (!(gameObject instanceof CardView)) { return ;}
             gameObject.registerEvent('dragleave');
             // console.log('dragleave');
             // dropZone.clearTint();
@@ -131,6 +136,7 @@ class SolitaireScene extends Phaser.Scene
         this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: CardDropZone) =>
         {
             console.log('dropped');
+            if (!(gameObject instanceof CardView)) { return ;}
             gameObject.registerEvent('drop');
             model.handleCardWasMovedByHand({
                 cards: gameObject.draggedCardNames,
@@ -147,6 +153,7 @@ class SolitaireScene extends Phaser.Scene
         this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropped: boolean) =>
         {
             console.log('dragend');
+            if (!(gameObject instanceof CardView)) { return ;}
             gameObject.registerEvent('dragend');
             if (!dropped)
             {
