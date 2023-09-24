@@ -74,10 +74,17 @@ import { TweenConfig } from "../model/solitaire/TypeUtils";
     return new Point(this.x, this.y);
   }
 
+  // Override this to allow cards in certain positions to be dragged
+  protected canDragNthCard(n: number) {
+    return false;
+  }
+
   private repositionCard(index: number, tweenConfig?: TweenConfig) {
 
     const p = this.positionOfNthCard(index);
     const card = this.cards[index];
+
+    card.canBeMoved = this.canDragNthCard(index);
 
     let fullTweenConfig = {
       targets: card,

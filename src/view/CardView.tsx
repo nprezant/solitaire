@@ -72,7 +72,7 @@ class CardView extends Phaser.GameObjects.Sprite {
       return; // No change
     }
     this._canBeMoved = value;
-    this.setInteractive({ draggable: this._canBeMoved });
+    this.scene.input.setDraggable(this, value);
   }
 
   public get parentEntity(): BoardEntity {
@@ -115,6 +115,7 @@ class CardView extends Phaser.GameObjects.Sprite {
     this.faceFrame = frame;
     this.backFrame = 'back';
     this.setScale(CardView.displayWidth / this.width);
+    this.setInteractive();
     scene.add.existing(this);
   }
 
