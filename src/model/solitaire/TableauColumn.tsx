@@ -66,6 +66,10 @@ import { FaceCard } from "./Suit"
     return this.cards.takeByName(names);
   }
 
+  public cardsOnTopOf(card: Card): Card[] {
+    return this.cards.cardsOnTopOf(card);
+  }
+
   /**
    * Clears the cards from this column.
    */

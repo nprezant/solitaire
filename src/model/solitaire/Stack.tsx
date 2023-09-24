@@ -113,6 +113,13 @@ import StackLocation from './StackLocation';
     }
   }
 
+  public cardsOnTopOf(card: Card): Card[] {
+    let index = this.cards.indexOf(card);
+    if (index === -1) { return []; }
+
+    return this.cards.slice(index + 1);
+  }
+
   /**
    * True if there are no cards in the deck.
    */

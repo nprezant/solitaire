@@ -305,8 +305,11 @@ import CardAndPlace from './CardAndPlace';
     // Must overwrite this before accepting the event
     let playTo: CardLocation | undefined = undefined;
 
+    // May modify this is more cards will be moved
+    let playCards = [cardName];
+
     let e = new SimpleEvent(
-      () => { this.acceptAutoMove(new MoveData({cards: [cardName], from: currentLocation, to: playTo})); },
+      () => { this.acceptAutoMove(new MoveData({cards: playCards, from: currentLocation, to: playTo})); },
       () => { /* ignore rejections */ }
     );
 
@@ -319,9 +322,11 @@ import CardAndPlace from './CardAndPlace';
       }
     }
 
+    // Can also move to a tableau column
     for (const [index, isPlayable] of this.tableau.wherePlayable(card).entries()) {
       if (isPlayable) {
         playTo = CardLocation.tableau(index);
+        playCards.push(...this.tableau.columns[currentLocation.index ?? 0].cardsOnTopOf(card).map(x => x.name));
         e.accept();
         return true;
       }
