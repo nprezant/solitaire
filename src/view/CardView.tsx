@@ -2,6 +2,7 @@ import BoardEntity from "../model/solitaire/BoardEntity";
 import CardLocation from "../model/solitaire/CardLocation";
 import StackLocation from "../model/solitaire/StackLocation";
 import { MembersOf } from "../model/solitaire/TypeUtils";
+import EventLog from "./EventLog";
 
 /**
  * A card that can flip and be dragged around.
@@ -29,6 +30,8 @@ class CardView extends Phaser.GameObjects.Sprite {
 
   public isFaceUp: boolean = false;
 
+  private eventLog: EventLog = new EventLog();
+
   private get currentFrame() {
     return this.isFaceUp ? this.faceFrame : this.backFrame;
   }
@@ -50,6 +53,14 @@ class CardView extends Phaser.GameObjects.Sprite {
   public dragDidEnd() {
     this.dragAlongCards.length = 0;
     this.isDragging = false;
+  }
+
+  public registerEvent(eventName: string) {
+    this.eventLog.log(eventName);
+  }
+
+  public wasClicked(): boolean {
+    return this.eventLog.wasClick();
   }
 
   public get canBeMoved() {

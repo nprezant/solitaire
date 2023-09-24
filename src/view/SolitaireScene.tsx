@@ -55,15 +55,28 @@ class SolitaireScene extends Phaser.Scene
 
         this.input.dragDistanceThreshold = 3;
 
-        this.input.on('pointerup', (pointer: Phaser.Input.Pointer, objects: CardView[]) => {
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, objects: CardView[]) => {
 
+            console.log('pointerdown');
             if (objects.length === 0) {
                 return;
             }
 
             let card = objects[0];
+            card.registerEvent('pointerdown');
+        });
 
-            if (card.isDragging) {
+        this.input.on('pointerup', (pointer: Phaser.Input.Pointer, objects: CardView[]) => {
+
+            console.log('pointerup');
+            if (objects.length === 0) {
+                return;
+            }
+
+            let card = objects[0];
+            card.registerEvent('pointerup');
+
+            if (!card.wasClicked()) {
                 return;
             }
 
@@ -87,6 +100,7 @@ class SolitaireScene extends Phaser.Scene
         // This should be some kind of tap event (pointer down, then up without leaving)
         this.input.on('dragstart',  (pointer: Phaser.Input.Pointer, gameObject: CardView) => {
 
+            gameObject.registerEvent('dragstart');
             board.cardIsDragging(gameObject);
 
         }, this);
@@ -95,13 +109,14 @@ class SolitaireScene extends Phaser.Scene
         this.input.on('drag', function (pointer: Phaser.Input.Pointer, gameObject: CardView, dragX: number, dragY: number) {
 
             // Drags with the pointer
+            gameObject.registerEvent('drag');
             gameObject.didDragTo(dragX, dragY);
 
         });
 
         this.input.on('dragleave', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: Phaser.GameObjects.Zone) =>
         {
-
+            gameObject.registerEvent('dragleave');
             // console.log('dragleave');
             // dropZone.clearTint();
 
@@ -109,7 +124,8 @@ class SolitaireScene extends Phaser.Scene
 
         this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropZone: CardDropZone) =>
         {
-            console.log('dropped')
+            console.log('dropped');
+            gameObject.registerEvent('drop');
             model.handleCardWasMovedByHand({
                 cards: gameObject.draggedCardNames,
                 from: gameObject.location,
@@ -124,6 +140,8 @@ class SolitaireScene extends Phaser.Scene
 
         this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: CardView, dropped: boolean) =>
         {
+            console.log('dragend');
+            gameObject.registerEvent('dragend');
             if (!dropped)
             {
                 // Drop cancelled; card is sent back where it started.
