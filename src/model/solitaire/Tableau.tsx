@@ -1,4 +1,6 @@
 import Card from "./Card";
+import CardAndPlace from "./CardAndPlace";
+import CardLocation from "./CardLocation";
 import TableauColumn from './TableauColumn'
 
 /**
@@ -60,12 +62,12 @@ import TableauColumn from './TableauColumn'
     return false;
   }
 
-  findCard(cardName: string): Card | undefined {
-    for (const column of this.columns) {
+  findCard(cardName: string): CardAndPlace | undefined {
+    for (const [index, column] of this.columns.entries()) {
 
       let card = column.findCard(cardName);
       if (card !== undefined) {
-        return card;
+        return new CardAndPlace(card, CardLocation.tableau(index));
       }
 
     }

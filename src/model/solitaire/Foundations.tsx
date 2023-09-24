@@ -1,6 +1,8 @@
 import Foundation from "./Foundation";
 import Card from "./Card";
 import { Suit, SUIT_SIZE } from "./Suit";
+import CardAndPlace from "./CardAndPlace";
+import CardLocation from "./CardLocation";
 
 /**
  * The set of foundations (one for each suit)
@@ -56,12 +58,12 @@ import { Suit, SUIT_SIZE } from "./Suit";
     return false;
   }
 
-  findCard(cardName: string): Card | undefined {
-    for (const foundation of this.foundations) {
+  findCard(cardName: string): CardAndPlace | undefined {
+    for (const [index, foundation] of this.foundations.entries()) {
       
       let card = foundation.findCard(cardName);
       if (card !== undefined) {
-        return card;
+        return new CardAndPlace(card, CardLocation.foundation(index));
       }
 
     }

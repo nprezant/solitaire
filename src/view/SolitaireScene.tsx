@@ -77,7 +77,7 @@ class SolitaireScene extends Phaser.Scene
             card.registerEvent('pointerup');
 
             if (!card.wasClicked()) {
-                return;
+                return; // Ignore if this wasn't a click event
             }
 
             let parent = card.parentEntity;
@@ -87,10 +87,16 @@ class SolitaireScene extends Phaser.Scene
                     model.drawStep();
                     break;
                 case BoardEntity.WastePile:
-                    model.resetWastePile();
+                    let wasPlayed = model.autoPlay(card.cardName);
+                    if (!wasPlayed) {
+                        model.resetWastePile();
+                    }
                     break;
                 case BoardEntity.Tableau:
-                    model.fixTableauOrientations(card.parentEntityIndex);
+                    let wasFixed = model.fixTableauOrientations(card.parentEntityIndex);
+                    if (!wasFixed) {
+                        model.autoPlay(card.cardName);
+                    }
                 default:
                     break;
             }

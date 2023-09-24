@@ -1,6 +1,4 @@
-import { MembersOf } from "./TypeUtils";
-
-export default class MoveEvent {
+export default class SimpleEvent {
   public accepted = false;
   public rejected = false;
 

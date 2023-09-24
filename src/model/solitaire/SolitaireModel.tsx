@@ -6,8 +6,9 @@ import MoveData from './MoveData';
 import { MembersOf } from './TypeUtils';
 import CardLocation from './CardLocation';
 import Card from './Card';
-import MoveEvent from './MoveEvent';
+import SimpleEvent from './SimpleEvent';
 import StackLocation from './StackLocation';
+import CardAndPlace from './CardAndPlace';
 
 /**
  * The main solitaire game.
@@ -42,7 +43,7 @@ import StackLocation from './StackLocation';
   public handleCardWasMovedByHand(data_: MembersOf<MoveData>) {
     let data = new MoveData(data_);
 
-    let e = new MoveEvent(
+    let e = new SimpleEvent(
       () => { this.acceptHandMove(data) },
       () => { this.rejectHandMove(data) }
     );
@@ -53,14 +54,14 @@ import StackLocation from './StackLocation';
     let cardName = data.cards[0];
     if (cardName === undefined) { e.reject(); }
 
-    let card = this.findCard(cardName);
-    if (card === undefined) {
-      console.error('Could not find card ' + card + ' in deck.');
+    let cardAndPlace = this.findCard(cardName);
+    if (cardAndPlace === undefined) {
+      console.error('Could not find card ' + cardName + ' in deck.');
       e.reject();
     }
 
     if (e.resolved) { return; }
-    card = card!; // If we have not resolved, card must not be undefined
+    const card = cardAndPlace!.card; // If we have not resolved, card must not be undefined
 
     let movingFrom = data.from?.loc;
 
@@ -128,6 +129,11 @@ import StackLocation from './StackLocation';
     this.sendMoveMessage(data);
   }
 
+  private acceptAutoMove(data: MoveData) {
+    this.performMove(data);
+    this.sendMoveMessage(data);
+  }
+
   private rejectHandMove(data: MoveData) {
     // Cancel the move by sending it back where it came from.
     let rejectedData = new MoveData(data);
@@ -181,21 +187,22 @@ import StackLocation from './StackLocation';
     }
   }
 
-  private findCard(cardName: string) {
+  private findCard(cardName: string): CardAndPlace | undefined {
     var card: Card | undefined;
 
     card = this.drawPile.findCard(cardName);
-    if (card !== undefined) { return card; }
+    if (card !== undefined) { return new CardAndPlace(card, CardLocation.drawPile()); }
 
-    card = this.wastePile.findCard(cardName)
-    if (card !== undefined) { return card; }
+    card = this.wastePile.findCard(cardName);
+    if (card !== undefined) { return new CardAndPlace(card, CardLocation.wastePile()); }
 
-    card = this.tableau.findCard(cardName)
-    if (card !== undefined) { return card; }
+    let tableauCard = this.tableau.findCard(cardName);
+    if (tableauCard !== undefined) { return tableauCard; }
 
-    card = this.foundations.findCard(cardName)
+    let foundationCard = this.foundations.findCard(cardName);
+    if (foundationCard !== undefined) { return foundationCard; }
     
-    return card;
+    return undefined;
   }
 
   setup() {
@@ -270,7 +277,9 @@ import StackLocation from './StackLocation';
     this.sendMoveMessage({cards: wasteCards.map(x => x.name), from: CardLocation.wastePile(), to: CardLocation.drawPile(), flip: true, msg: "resetting waste" });
   }
 
-  public fixTableauOrientations(n: integer | undefined) {
+  // Flips the end card over if necessary.
+  // Returns whether or not a flip was performed.
+  public fixTableauOrientations(n: integer | undefined): boolean {
     const flippedCards =
       (n === undefined)
       ? this.tableau.fixAllOrientations()
@@ -280,6 +289,46 @@ import StackLocation from './StackLocation';
       flip: true,
       msg: 'fixing tableau orientations',
     });
+    return flippedCards.length > 0;
+  }
+
+  public autoPlay(cardName: string): boolean {
+    let cardAndPlace = this.findCard(cardName);
+    if (cardAndPlace === undefined) {
+      console.error('Could not find card ' + cardName + ' in deck.');
+      return false;
+    }
+
+    let currentLocation = cardAndPlace.place;
+    let card = cardAndPlace.card;
+
+    // Must overwrite this before accepting the event
+    let playTo: CardLocation | undefined = undefined;
+
+    let e = new SimpleEvent(
+      () => { this.acceptAutoMove(new MoveData({cards: [cardName], from: currentLocation, to: playTo})); },
+      () => { /* ignore rejections */ }
+    );
+
+    // Move to a foundation if possible
+    for (const [index, isPlayable] of this.foundations.wherePlayable(card).entries()) {
+      if (isPlayable) {
+        playTo = CardLocation.foundation(index);
+        e.accept();
+        return true;
+      }
+    }
+
+    for (const [index, isPlayable] of this.tableau.wherePlayable(card).entries()) {
+      if (isPlayable) {
+        playTo = CardLocation.tableau(index);
+        e.accept();
+        return true;
+      }
+    }
+
+    return false;
+
   }
 
   /**
