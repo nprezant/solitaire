@@ -75,6 +75,10 @@ import TableauColumn from './TableauColumn'
     return undefined;
   }
 
+  public isCardAllowedToMove(card: Card, index: number) {
+    return this.columns[index].isCardAllowedToMove(card);
+  }
+
   addToColumn(n?: integer, ...cards: Card[]) {
     this.columns[n ?? 0].cards.addToTop(...cards);
   }

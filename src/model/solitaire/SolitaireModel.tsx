@@ -292,10 +292,29 @@ import CardAndPlace from './CardAndPlace';
     return flippedCards.length > 0;
   }
 
+  public allowedToMove(cardAndPlace: CardAndPlace): boolean {
+    switch (cardAndPlace.place.loc) {
+      case BoardEntity.DrawPile:
+        return false;
+      case BoardEntity.WastePile:
+        return this.wastePile.peek()?.name === cardAndPlace.card.name;
+      case BoardEntity.Foundation:
+        return this.foundations.isCardAllowedToMove(cardAndPlace.card, cardAndPlace.place.index ?? 0);
+      case BoardEntity.Tableau:
+        return this.tableau.isCardAllowedToMove(cardAndPlace.card, cardAndPlace.place.index ?? 0);
+      default:
+        return false;
+    }
+  }
+
   public autoPlay(cardName: string): boolean {
     let cardAndPlace = this.findCard(cardName);
     if (cardAndPlace === undefined) {
       console.error('Could not find card ' + cardName + ' in deck.');
+      return false;
+    }
+
+    if (!this.allowedToMove(cardAndPlace)) {
       return false;
     }
 

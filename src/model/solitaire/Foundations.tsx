@@ -71,6 +71,11 @@ import CardLocation from "./CardLocation";
     return undefined;
   }
 
+  public isCardAllowedToMove(card: Card, index: number) {
+    return this.foundations[index].isCardAllowedToMove(card);
+  }
+
+
   addToFoundation(n?: integer, ...cards: Card[]) {
     this.foundations[n ?? 0].cards.addToTop(...cards);
   }

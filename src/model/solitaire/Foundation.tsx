@@ -36,6 +36,10 @@ import Card from "./Card";
     
   }
 
+  public isCardAllowedToMove(card: Card) {
+    return this.topCard()?.name === card.name;
+  }
+
   /**
    * Number of cards in the stack.
    * @return {number}

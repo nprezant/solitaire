@@ -62,6 +62,10 @@ import { FaceCard } from "./Suit"
     
   }
 
+  public isCardAllowedToMove(card: Card) {
+    return this.isCardVisible(card.name);
+  }
+
   public takeByName(names: string[]): Card[] {
     return this.cards.takeByName(names);
   }
