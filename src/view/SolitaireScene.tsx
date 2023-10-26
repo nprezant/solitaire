@@ -174,7 +174,7 @@ class SolitaireScene extends Phaser.Scene
         });
 
         // Setup solitaire model
-        const model = new SolitaireModel(3);
+        const model = new SolitaireModel(1);
 
         // Setup the board state
         const board = new SolitaireBoardView(0, 0, cards, this);
