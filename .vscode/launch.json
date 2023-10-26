@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "type": "pwa-chrome",
+      "name": "built one",
+      "request": "launch",
+      "url": "http://localhost:8000"
+    }
+  ]
+}
