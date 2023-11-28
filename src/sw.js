@@ -2,7 +2,7 @@
 const VERSION = '0.0.0';
 
 // The name of the cache
-const CACHE_NAME = `period-tracker-${VERSION}`;
+const CACHE_NAME = `solitaire-${VERSION}`;
 
 // The static resources that the app needs to function.
 const APP_STATIC_RESOURCES = [
