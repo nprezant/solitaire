@@ -202,3 +202,27 @@ input::-moz-focus-inner,
 input::-moz-focus-outer {
   border: 0;
 }
+
+// Cards
+//@cardsvg = cards.svg;
+$svgWidth: 167.5px;
+$svgHeight: 240px;
+.card {
+  position: absolute;
+  width: $svgWidth;
+  height: $svgHeight;
+  background: url(img/cards.svg) no-repeat;
+}
+div.spade_1 { background-position: (-$svgWidth*0) (-$svgHeight*0); }
+div.spade_2 { background-position: (-$svgWidth*1) (-$svgHeight*0); }
+div.spade_3 { background-position: (-$svgWidth*2) (-$svgHeight*0); }
+div.spade_4 { background-position: (-$svgWidth*3) (-$svgHeight*0); }
+div.spade_5 { background-position: (-$svgWidth*4) (-$svgHeight*0); }
+div.spade_6 { background-position: (-$svgWidth*5) (-$svgHeight*0); }
+div.spade_7 { background-position: (-$svgWidth*6) (-$svgHeight*0); }
+div.spade_8 { background-position: (-$svgWidth*7) (-$svgHeight*0); }
+div.spade_9 { background-position: (-$svgWidth*8) (-$svgHeight*0); }
+div.spade_10 { background-position: (-$svgWidth*9) (-$svgHeight*0); }
+div.spade_J { background-position: (-$svgWidth*10) (-$svgHeight*0); }
+div.spade_Q { background-position: (-$svgWidth*11) (-$svgHeight*0); }
+div.spade_K { background-position: (-$svgWidth*12) (-$svgHeight*0); }

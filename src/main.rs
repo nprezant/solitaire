@@ -68,6 +68,7 @@ impl Component for App {
         html! {
             <>
                 <h1 class="title">{ "Boids" }</h1>
+                <div class="card spade_J"></div>
                 <Simulation settings={settings.clone()} {generation} {paused} />
                 { self.view_panel(ctx.link()) }
             </>
