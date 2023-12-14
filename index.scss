@@ -271,3 +271,7 @@ div.spade_10 { @include svg-position(9, 3); }
 div.spade_J { @include svg-position(10, 3); }
 div.spade_Q { @include svg-position(11, 3); }
 div.spade_K { @include svg-position(12, 3); }
+
+div.joker_black { @include svg-position(0, 4); }
+div.joker_red { @include svg-position(1, 4); }
+div.card_back { @include svg-position(2, 4); }
