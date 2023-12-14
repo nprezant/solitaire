@@ -213,16 +213,19 @@ $svgHeight: 240px;
   height: $svgHeight;
   background: url(img/cards.svg) no-repeat;
 }
-div.spade_1 { background-position: (-$svgWidth*0) (-$svgHeight*0); }
-div.spade_2 { background-position: (-$svgWidth*1) (-$svgHeight*0); }
-div.spade_3 { background-position: (-$svgWidth*2) (-$svgHeight*0); }
-div.spade_4 { background-position: (-$svgWidth*3) (-$svgHeight*0); }
-div.spade_5 { background-position: (-$svgWidth*4) (-$svgHeight*0); }
-div.spade_6 { background-position: (-$svgWidth*5) (-$svgHeight*0); }
-div.spade_7 { background-position: (-$svgWidth*6) (-$svgHeight*0); }
-div.spade_8 { background-position: (-$svgWidth*7) (-$svgHeight*0); }
-div.spade_9 { background-position: (-$svgWidth*8) (-$svgHeight*0); }
-div.spade_10 { background-position: (-$svgWidth*9) (-$svgHeight*0); }
-div.spade_J { background-position: (-$svgWidth*10) (-$svgHeight*0); }
-div.spade_Q { background-position: (-$svgWidth*11) (-$svgHeight*0); }
-div.spade_K { background-position: (-$svgWidth*12) (-$svgHeight*0); }
+@mixin svg-position($row, $column) {
+  background-position: (-$svgWidth*$row) (-$svgHeight*$column);
+}
+div.spade_1 { @include svg-position(0, 0); }
+div.spade_2 { @include svg-position(1, 0); }
+div.spade_3 { @include svg-position(2, 0); }
+div.spade_4 { @include svg-position(3, 0); }
+div.spade_5 { @include svg-position(4, 0); }
+div.spade_6 { @include svg-position(5, 0); }
+div.spade_7 { @include svg-position(6, 0); }
+div.spade_8 { @include svg-position(7, 0); }
+div.spade_9 { @include svg-position(8, 0); }
+div.spade_10 { @include svg-position(9, 0); }
+div.spade_J { @include svg-position(10, 0); }
+div.spade_Q { @include svg-position(11, 0); }
+div.spade_K { @include svg-position(12, 0); }
