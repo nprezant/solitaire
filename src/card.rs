@@ -39,7 +39,7 @@ impl Card {
                 deck.push(Card::new(rank, suit))
             }
         }
-        return deck;
+        deck
     }
 
     pub fn render(&self) -> Html {
