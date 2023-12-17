@@ -1,3 +1,4 @@
+use game::Game;
 use settings::Settings;
 use simulation::Simulation;
 use slider::Slider;
@@ -5,6 +6,8 @@ use yew::html::Scope;
 use yew::{html, Component, Context, Html};
 
 mod boid;
+mod card;
+mod game;
 mod math;
 mod settings;
 mod simulation;
@@ -67,10 +70,11 @@ impl Component for App {
 
         html! {
             <>
-                <h1 class="title">{ "Boids" }</h1>
+                <h1 class="title">{ "Solitaire" }</h1>
                 <div class="card spade_J"></div>
                 <div class="card heart_Q"></div>
                 <div class="card heart_K"></div>
+                <Game/>
                 <Simulation settings={settings.clone()} {generation} {paused} />
                 { self.view_panel(ctx.link()) }
             </>
