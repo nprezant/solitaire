@@ -12,6 +12,7 @@ mod math;
 mod settings;
 mod simulation;
 mod slider;
+mod suit;
 
 pub enum Msg {
     ChangeSettings(Settings),

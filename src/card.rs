@@ -1,30 +1,14 @@
-use core::fmt;
-
-use strum::EnumIter;
+use crate::suit::Suit;
 use strum::IntoEnumIterator;
 
 use yew::{html, Html}; // 0.17.1
-
-#[derive(Copy, Clone, Debug, PartialEq, EnumIter)]
-pub enum Suit {
-    Spade,
-    Diamond,
-    Club,
-    Heart,
-}
-
-impl fmt::Display for Suit {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-        // or, alternatively:
-        // fmt::Debug::fmt(self, f)
-    }
-}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Card {
     rank: i32,
     suit: Suit,
+    //top: i32,
+    //left: i32,
 }
 
 impl Card {
