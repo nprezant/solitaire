@@ -30,7 +30,9 @@ impl Component for Game {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
+            <div class="cards">
             { for self.cards.iter().map(Card::render) }
+            </div>
         }
     }
 }

@@ -35,7 +35,7 @@ impl Card {
     pub fn new_deck() -> Vec<Card> {
         let mut deck = Vec::new();
         for suit in Suit::iter() {
-            for rank in 0..13 {
+            for rank in 1..13 {
                 deck.push(Card::new(rank, suit))
             }
         }
@@ -43,7 +43,16 @@ impl Card {
     }
 
     pub fn render(&self) -> Html {
-        let card_name = format!("{}_{}", self.suit, self.rank);
+        let raw_rank = self.rank.to_string();
+        let card_rank = match self.rank {
+            1..=10 => raw_rank.as_str(),
+            11 => "J",
+            12 => "Q",
+            13 => "K",
+            _ => "1", // Don't panic
+        };
+        let mut card_name = format!("{}_{}", self.suit, card_rank);
+        card_name.make_ascii_lowercase();
         let classes = format!("card {}", card_name);
 
         html! { <div class={classes} /> }
