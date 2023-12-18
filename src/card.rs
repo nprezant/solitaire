@@ -4,8 +4,8 @@ use strum::IntoEnumIterator;
 use yew::{html, Html}; // 0.17.1
 
 // todo tweak if cards seemed cropped funny
-const RAW_SVG_CARD_WIDTH: f32 = 167.5;
-const RAW_SVG_CARD_HEIGHT: f32 = 243.0;
+const SVG_CARD_WIDTH: f32 = 167.5;
+const SVG_CARD_HEIGHT: f32 = 243.0;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Card {
@@ -34,7 +34,7 @@ impl Card {
     }
 
     fn get_height(w: f32) -> f32 {
-        w / (RAW_SVG_CARD_WIDTH / RAW_SVG_CARD_HEIGHT)
+        w / (SVG_CARD_WIDTH / SVG_CARD_HEIGHT)
     }
 
     fn get_svg_href(rank: i32, suit: Suit) -> String {
@@ -61,11 +61,11 @@ impl Card {
         } - 1;
         let col = rank - 1;
 
-        let vb_top = row as f32 * RAW_SVG_CARD_HEIGHT;
-        let vb_left = col as f32 * RAW_SVG_CARD_WIDTH;
+        let vb_top = row as f32 * SVG_CARD_HEIGHT;
+        let vb_left = col as f32 * SVG_CARD_WIDTH;
         let vb = format!(
             "{} {} {} {}",
-            vb_left, vb_top, RAW_SVG_CARD_WIDTH, RAW_SVG_CARD_HEIGHT,
+            vb_left, vb_top, SVG_CARD_WIDTH, SVG_CARD_HEIGHT,
         );
         vb
     }
