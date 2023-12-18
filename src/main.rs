@@ -9,6 +9,7 @@ mod boid;
 mod card;
 mod game;
 mod math;
+mod rect;
 mod settings;
 mod simulation;
 mod slider;
