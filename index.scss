@@ -205,14 +205,14 @@ input::-moz-focus-outer {
 
 // Cards
 //@cardsvg = cards.svg;
-$svgWidth: 167.5px;
+$svgwidth: 167.5px;
 $svgHeight: 243px;
 
 .card {
   position: absolute;
-  width: $svgWidth;
-  height: $svgHeight;
-  background: url(img/cards.svg) no-repeat;
+//  width: $svgWidth;
+//  height: $svgHeight;
+//  background: url(img/cards.svg) no-repeat;
 }
 
 @mixin svg-position($row, $column) {
