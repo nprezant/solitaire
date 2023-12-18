@@ -146,7 +146,7 @@ impl Card {
             }
         }
         Dealer::shuffle(&mut deck);
-        Dealer::deal(&mut deck, 5);
+        Dealer::deal(&mut deck, 8);
         Dealer::update_positions(&mut deck);
         //spread(&mut deck, 5.0, 5.0);
         deck

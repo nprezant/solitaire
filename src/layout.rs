@@ -12,8 +12,8 @@ impl Layout {
         Self {
             draw_pile: Rect::new(80.0, 10.0, 0.0, 0.0),
             waste_pile: Rect::new(70.0, 10.0, 0.0, 0.0),
-            foundations: Rect::new(10.0, 10.0, 0.0, 0.0),
-            tableau: Rect::new(10.0, 20.0, 0.0, 0.0),
+            foundations: Rect::new(2.0, 10.0, 0.0, 0.0),
+            tableau: Rect::new(2.0, 20.0, 0.0, 0.0),
         }
     }
 }
