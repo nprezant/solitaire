@@ -4,18 +4,15 @@ use slider::Slider;
 use yew::html::Scope;
 use yew::{html, Component, Context, Html};
 
-//mod boid;
-//mod math;
-//mod simulation;
-
 mod card;
+mod dealer;
 mod game;
+mod layout;
 mod location;
 mod play_area;
 mod rect;
 mod settings;
 mod slider;
-mod sol;
 mod suit;
 
 pub enum Msg {

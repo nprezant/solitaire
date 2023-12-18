@@ -1,12 +1,9 @@
-use crate::{location::Location, play_area::PlayArea, rect::Rect, suit::Suit};
-use rand::{seq::SliceRandom, thread_rng};
+use crate::{
+    dealer::Dealer, layout::Layout, location::Location, play_area::PlayArea, rect::Rect, suit::Suit,
+};
 use strum::IntoEnumIterator;
 
-use web_sys::wasm_bindgen;
 use yew::{html, Html}; // 0.17.1
-
-use log::info;
-use wasm_bindgen::JsValue;
 
 // todo tweak if cards seemed cropped funny
 const SVG_CARD_WIDTH: f32 = 167.5;
@@ -21,25 +18,6 @@ const FOUNDATION_INNER_PADDING: f32 = 6.0;
 // Padding between foundation columns
 const SPREAD_OFFSET: f32 = 2.0;
 
-pub trait CardTrait {
-    fn get_rank(&self) -> i32;
-    fn get_suit(&self) -> Suit;
-}
-
-#[macro_export]
-macro_rules! add_card_trait_impl {
-    ($struct_name:ident) => {
-        impl CardTrait for $struct_name {
-            fn get_rank(&self) -> i32 {
-                self.rank
-            }
-            fn get_suit(&self) -> Suit {
-                self.suit
-            }
-        }
-    };
-}
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Card {
     rank: i32,
@@ -50,11 +28,9 @@ pub struct Card {
     svg_href: String,
     svg_viewbox: String,
 
-    location: Location,
-    faceup: bool,
+    pub location: Location,
+    pub faceup: bool,
 }
-
-add_card_trait_impl!(Card);
 
 impl Card {
     pub fn new(rank: i32, suit: Suit) -> Self {
@@ -134,6 +110,34 @@ impl Card {
         vb
     }
 
+    // Update card position based on location
+    pub fn update_positions(&mut self, layout: &Layout) {
+        match self.location.area {
+            PlayArea::Hand => {
+                // Skip; this one is being dragged or something.
+            }
+            PlayArea::DrawPile => {
+                self.pos.x = layout.draw_pile.x;
+                self.pos.y = layout.draw_pile.y;
+            }
+            PlayArea::WastePile => {
+                self.pos.x = layout.waste_pile.x;
+                self.pos.y = layout.waste_pile.y;
+            }
+            PlayArea::Tableau => {
+                self.pos.x = layout.tableau.x
+                    + (self.pos.w + TABLEAU_INNER_PADDING) * self.location.area_index as f32;
+                self.pos.y = layout.tableau.y + (SPREAD_OFFSET) * self.location.sort_index as f32;
+            }
+            PlayArea::Foundation => {
+                self.pos.x = layout.foundations.x
+                    + (self.pos.w + FOUNDATION_INNER_PADDING) * self.location.area_index as f32;
+                self.pos.y =
+                    layout.foundations.y + (SPREAD_OFFSET) * self.location.sort_index as f32;
+            }
+        }
+    }
+
     pub fn new_deck() -> Vec<Card> {
         let mut deck = Vec::new();
         for suit in Suit::iter() {
@@ -164,112 +168,12 @@ impl Card {
             &back_vb
         };
 
-        info!("Hello faceup={}", self.faceup);
-
         html! {
         <div class="card" style={position}>
             <svg viewBox={vb.clone()} {width} {height} >
                 < use href={href.clone()} />
             </svg>
         </div>
-        }
-    }
-}
-
-struct Dealer {}
-
-impl Dealer {
-    fn shuffle(cards: &mut Vec<Card>) {
-        cards.shuffle(&mut thread_rng());
-    }
-
-    fn deal(cards: &mut Vec<Card>, n_cols: i32) {
-        Self::set_locations(cards, &{
-            let area = PlayArea::DrawPile;
-            let area_index = 0;
-            let sort_index = 0;
-            Location {
-                area,
-                area_index,
-                sort_index,
-            }
-        });
-
-        let mut i = 0;
-
-        for n in (0..n_cols).rev() {
-            // Columns
-            for j in 0..n {
-                // Cards in column
-                let column_index = n_cols - j - 1;
-                let card = &mut cards[i];
-                i += 1;
-
-                if j == n - 1 {
-                    card.faceup = true;
-                }
-
-                card.location.area = PlayArea::Tableau;
-                card.location.area_index = column_index;
-                card.location.sort_index = j;
-            }
-        }
-    }
-
-    /// Updates the positions of the cards based on the card locations.
-    fn update_positions(cards: &mut Vec<Card>) {
-        let layout = Layout::compute();
-
-        for card in cards {
-            match card.location.area {
-                PlayArea::Hand => {
-                    // Skip; this one is being dragged or something.
-                }
-                PlayArea::DrawPile => {
-                    card.pos.x = layout.draw_pile.x;
-                    card.pos.y = layout.draw_pile.y;
-                }
-                PlayArea::WastePile => {
-                    card.pos.x = layout.waste_pile.x;
-                    card.pos.y = layout.waste_pile.y;
-                }
-                PlayArea::Tableau => {
-                    card.pos.x = layout.tableau.x
-                        + (card.pos.w + TABLEAU_INNER_PADDING) * card.location.area_index as f32;
-                    card.pos.y =
-                        layout.tableau.y + (SPREAD_OFFSET) * card.location.sort_index as f32;
-                }
-                PlayArea::Foundation => {
-                    card.pos.x = layout.foundations.x
-                        + (card.pos.w + FOUNDATION_INNER_PADDING) * card.location.area_index as f32;
-                    card.pos.y =
-                        layout.foundations.y + (SPREAD_OFFSET) * card.location.sort_index as f32;
-                }
-            }
-        }
-    }
-
-    fn set_locations(cards: &mut Vec<Card>, loc: &Location) {
-        (0..cards.len()).for_each(|i| {
-            cards[i].location.copy_from(loc);
-        });
-    }
-}
-
-pub struct Layout {
-    pub draw_pile: Rect,
-    pub waste_pile: Rect,
-    pub foundations: Rect,
-    pub tableau: Rect,
-}
-
-impl Layout {
-    pub fn compute() -> Self {
-        Self {
-            draw_pile: Rect::new(80.0, 10.0, 0.0, 0.0),
-            waste_pile: Rect::new(70.0, 10.0, 0.0, 0.0),
-            foundations: Rect::new(10.0, 10.0, 0.0, 0.0),
-            tableau: Rect::new(10.0, 20.0, 0.0, 0.0),
         }
     }
 }
