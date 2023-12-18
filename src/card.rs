@@ -7,13 +7,18 @@ use yew::{html, Html}; // 0.17.1
 pub struct Card {
     rank: i32,
     suit: Suit,
-    //top: i32,
-    //left: i32,
+    top: f32,
+    left: f32,
 }
 
 impl Card {
     pub fn new(rank: i32, suit: Suit) -> Self {
-        Self { rank, suit }
+        Self {
+            rank,
+            suit,
+            top: 55.0,
+            left: 20.0,
+        }
     }
 
     pub fn new_deck() -> Vec<Card> {
@@ -38,7 +43,8 @@ impl Card {
         let mut card_name = format!("{}_{}", self.suit, card_rank);
         card_name.make_ascii_lowercase();
         let classes = format!("card {}", card_name);
+        let positions = format!("top: {}vw; left: {}vw;", self.top, self.left);
 
-        html! { <div class={classes} /> }
+        html! { <div class={classes} style={positions} /> }
     }
 }
