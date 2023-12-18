@@ -207,15 +207,18 @@ input::-moz-focus-outer {
 //@cardsvg = cards.svg;
 $svgWidth: 167.5px;
 $svgHeight: 243px;
+
 .card {
   position: absolute;
   width: $svgWidth;
   height: $svgHeight;
   background: url(img/cards.svg) no-repeat;
 }
+
 @mixin svg-position($row, $column) {
   background-position: (-$svgWidth*$row) (-$svgHeight*$column);
 }
+
 div.club_1 { @include svg-position(0, 0); }
 div.club_2 { @include svg-position(1, 0); }
 div.club_3 { @include svg-position(2, 0); }
