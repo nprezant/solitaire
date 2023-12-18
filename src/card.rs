@@ -1,21 +1,60 @@
-use crate::{rect::Rect, suit::Suit};
+use crate::{location::Location, play_area::PlayArea, rect::Rect, suit::Suit};
+use rand::{seq::SliceRandom, thread_rng};
 use strum::IntoEnumIterator;
 
+use web_sys::wasm_bindgen;
 use yew::{html, Html}; // 0.17.1
+
+use log::info;
+use wasm_bindgen::JsValue;
 
 // todo tweak if cards seemed cropped funny
 const SVG_CARD_WIDTH: f32 = 167.5;
 const SVG_CARD_HEIGHT: f32 = 243.0;
 
+// Padding between tableau columns
+const TABLEAU_INNER_PADDING: f32 = 6.0;
+
+// Padding between foundation columns
+const FOUNDATION_INNER_PADDING: f32 = 6.0;
+
+// Padding between foundation columns
+const SPREAD_OFFSET: f32 = 2.0;
+
+pub trait CardTrait {
+    fn get_rank(&self) -> i32;
+    fn get_suit(&self) -> Suit;
+}
+
+#[macro_export]
+macro_rules! add_card_trait_impl {
+    ($struct_name:ident) => {
+        impl CardTrait for $struct_name {
+            fn get_rank(&self) -> i32 {
+                self.rank
+            }
+            fn get_suit(&self) -> Suit {
+                self.suit
+            }
+        }
+    };
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Card {
     rank: i32,
     suit: Suit,
+
     pos: Rect, // ui position. viewport units.
 
     svg_href: String,
     svg_viewbox: String,
+
+    location: Location,
+    faceup: bool,
 }
+
+add_card_trait_impl!(Card);
 
 impl Card {
     pub fn new(rank: i32, suit: Suit) -> Self {
@@ -24,12 +63,25 @@ impl Card {
         let pos = Rect::new(0.0, 0.0, w, h);
         let svg_href = Self::get_svg_href(rank, suit);
         let svg_viewbox = Self::get_svg_viewbox(rank, suit);
+        let location = {
+            let area = PlayArea::DrawPile;
+            let area_index = 0;
+            let sort_index = 0;
+            Location {
+                area,
+                area_index,
+                sort_index,
+            }
+        };
+        let faceup = false;
         Self {
             rank,
             suit,
             pos,
             svg_href,
             svg_viewbox,
+            location,
+            faceup,
         }
     }
 
@@ -52,6 +104,14 @@ impl Card {
         card_href
     }
 
+    fn get_svg_href_back() -> String {
+        String::from("img/cards.svg#back")
+    }
+
+    fn get_svg_viewbox_back() -> String {
+        Self::get_svg_viewbox_rc(3, 2)
+    }
+
     fn get_svg_viewbox(rank: i32, suit: Suit) -> String {
         let row = match suit {
             Suit::Club => 0,
@@ -61,6 +121,10 @@ impl Card {
         } - 1;
         let col = rank - 1;
 
+        Self::get_svg_viewbox_rc(row, col)
+    }
+
+    fn get_svg_viewbox_rc(row: i32, col: i32) -> String {
         let vb_top = row as f32 * SVG_CARD_HEIGHT;
         let vb_left = col as f32 * SVG_CARD_WIDTH;
         let vb = format!(
@@ -77,7 +141,10 @@ impl Card {
                 deck.push(Card::new(rank, suit))
             }
         }
-        spread(&mut deck, 5.0, 5.0);
+        Dealer::shuffle(&mut deck);
+        Dealer::deal(&mut deck, 5);
+        Dealer::update_positions(&mut deck);
+        //spread(&mut deck, 5.0, 5.0);
         deck
     }
 
@@ -87,21 +154,122 @@ impl Card {
 
         let position = format!("top: {}vw; left: {}vw;", self.pos.y, self.pos.x);
 
+        let back = Self::get_svg_href_back();
+        let href: &String = if self.faceup { &self.svg_href } else { &back };
+
+        let back_vb = Self::get_svg_viewbox_back();
+        let vb: &String = if self.faceup {
+            &self.svg_viewbox
+        } else {
+            &back_vb
+        };
+
+        info!("Hello faceup={}", self.faceup);
+
         html! {
         <div class="card" style={position}>
-            <svg viewBox={self.svg_viewbox.clone()} {width} {height} >
-                < use href={self.svg_href.clone()} />
+            <svg viewBox={vb.clone()} {width} {height} >
+                < use href={href.clone()} />
             </svg>
         </div>
         }
     }
 }
 
-fn spread(cards: &mut Vec<Card>, mut x: f32, mut y: f32) {
-    (0..cards.len()).for_each(|i| {
-        cards[i].pos.x = x;
-        cards[i].pos.y = y;
-        x += 2.0;
-        y += 2.0;
-    });
+struct Dealer {}
+
+impl Dealer {
+    fn shuffle(cards: &mut Vec<Card>) {
+        cards.shuffle(&mut thread_rng());
+    }
+
+    fn deal(cards: &mut Vec<Card>, n_cols: i32) {
+        Self::set_locations(cards, &{
+            let area = PlayArea::DrawPile;
+            let area_index = 0;
+            let sort_index = 0;
+            Location {
+                area,
+                area_index,
+                sort_index,
+            }
+        });
+
+        let mut i = 0;
+
+        for n in (0..n_cols).rev() {
+            // Columns
+            for j in 0..n {
+                // Cards in column
+                let column_index = n_cols - j - 1;
+                let card = &mut cards[i];
+                i += 1;
+
+                if j == n - 1 {
+                    card.faceup = true;
+                }
+
+                card.location.area = PlayArea::Tableau;
+                card.location.area_index = column_index;
+                card.location.sort_index = j;
+            }
+        }
+    }
+
+    /// Updates the positions of the cards based on the card locations.
+    fn update_positions(cards: &mut Vec<Card>) {
+        let layout = Layout::compute();
+
+        for card in cards {
+            match card.location.area {
+                PlayArea::Hand => {
+                    // Skip; this one is being dragged or something.
+                }
+                PlayArea::DrawPile => {
+                    card.pos.x = layout.draw_pile.x;
+                    card.pos.y = layout.draw_pile.y;
+                }
+                PlayArea::WastePile => {
+                    card.pos.x = layout.waste_pile.x;
+                    card.pos.y = layout.waste_pile.y;
+                }
+                PlayArea::Tableau => {
+                    card.pos.x = layout.tableau.x
+                        + (card.pos.w + TABLEAU_INNER_PADDING) * card.location.area_index as f32;
+                    card.pos.y =
+                        layout.tableau.y + (SPREAD_OFFSET) * card.location.sort_index as f32;
+                }
+                PlayArea::Foundation => {
+                    card.pos.x = layout.foundations.x
+                        + (card.pos.w + FOUNDATION_INNER_PADDING) * card.location.area_index as f32;
+                    card.pos.y =
+                        layout.foundations.y + (SPREAD_OFFSET) * card.location.sort_index as f32;
+                }
+            }
+        }
+    }
+
+    fn set_locations(cards: &mut Vec<Card>, loc: &Location) {
+        (0..cards.len()).for_each(|i| {
+            cards[i].location.copy_from(loc);
+        });
+    }
+}
+
+pub struct Layout {
+    pub draw_pile: Rect,
+    pub waste_pile: Rect,
+    pub foundations: Rect,
+    pub tableau: Rect,
+}
+
+impl Layout {
+    pub fn compute() -> Self {
+        Self {
+            draw_pile: Rect::new(80.0, 10.0, 0.0, 0.0),
+            waste_pile: Rect::new(70.0, 10.0, 0.0, 0.0),
+            foundations: Rect::new(10.0, 10.0, 0.0, 0.0),
+            tableau: Rect::new(10.0, 20.0, 0.0, 0.0),
+        }
+    }
 }

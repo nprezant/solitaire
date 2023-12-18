@@ -10,9 +10,12 @@ use yew::{html, Component, Context, Html};
 
 mod card;
 mod game;
+mod location;
+mod play_area;
 mod rect;
 mod settings;
 mod slider;
+mod sol;
 mod suit;
 
 pub enum Msg {
