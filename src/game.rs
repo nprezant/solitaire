@@ -8,8 +8,9 @@ pub enum Msg {}
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub struct Props {
-    #[prop_or_default]
     pub settings: Settings,
+    #[prop_or_default]
+    pub iteration: usize,
 }
 
 #[derive(Debug)]

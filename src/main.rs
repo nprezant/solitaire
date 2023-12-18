@@ -1,31 +1,33 @@
 use game::Game;
 use settings::Settings;
-use simulation::Simulation;
 use slider::Slider;
 use yew::html::Scope;
 use yew::{html, Component, Context, Html};
 
-mod boid;
+//mod boid;
+//mod math;
+//mod simulation;
+
 mod card;
 mod game;
-mod math;
 mod rect;
 mod settings;
-mod simulation;
 mod slider;
 mod suit;
 
 pub enum Msg {
     ChangeSettings(Settings),
     ResetSettings,
-    RestartSimulation,
-    TogglePause,
+
+    RestartGame,
+    GiveHint,
+    UndoMove,
+    AutoMove,
 }
 
 pub struct App {
     settings: Settings,
-    generation: usize,
-    paused: bool,
+    iteration: usize,
 }
 impl Component for App {
     type Message = Msg;
@@ -34,8 +36,7 @@ impl Component for App {
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             settings: Settings::load(),
-            generation: 0,
-            paused: false,
+            iteration: 0,
         }
     }
 
@@ -51,13 +52,18 @@ impl Component for App {
                 Settings::remove();
                 true
             }
-            Msg::RestartSimulation => {
-                self.generation = self.generation.wrapping_add(1);
+            Msg::RestartGame => {
+                self.iteration = self.iteration.wrapping_add(1);
                 true
             }
-            Msg::TogglePause => {
-                self.paused = !self.paused;
-                true
+            Msg::GiveHint => {
+                todo!();
+            }
+            Msg::UndoMove => {
+                todo!();
+            }
+            Msg::AutoMove => {
+                todo!();
             }
         }
     }
@@ -65,16 +71,14 @@ impl Component for App {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let Self {
             ref settings,
-            generation,
-            paused,
+            iteration,
             ..
         } = *self;
 
         html! {
             <>
-                <h1 class="title">{ "Solitaire" }</h1>
-                <Game/>
-                <Simulation settings={settings.clone()} {generation} {paused} />
+                <h1 class="title">{ "Solitaire:" }{iteration}</h1>
+                <Game settings={settings.clone()} {iteration} />
                 { self.view_panel(ctx.link()) }
             </>
         }
@@ -82,14 +86,12 @@ impl Component for App {
 }
 impl App {
     fn view_panel(&self, link: &Scope<Self>) -> Html {
-        let pause_text = if self.paused { "Resume" } else { "Pause" };
         html! {
             <div class="panel">
                 { self.view_settings(link) }
                 <div class="panel__buttons">
-                    <button onclick={link.callback(|_| Msg::TogglePause)}>{ pause_text }</button>
                     <button onclick={link.callback(|_| Msg::ResetSettings)}>{ "Use Defaults" }</button>
-                    <button onclick={link.callback(|_| Msg::RestartSimulation)}>{ "Restart" }</button>
+                    <button onclick={link.callback(|_| Msg::RestartGame)}>{ "Restart" }</button>
                 </div>
             </div>
         }
@@ -118,50 +120,15 @@ impl App {
 
         html! {
             <div class="settings">
-                <Slider label="Number of Boids"
-                    min=1.0 max=600.0
-                    onchange={settings_callback!(link, settings; boids as usize)}
-                    value={settings.boids as f64}
+                <Slider label="Number of Columns"
+                    min=2.0 max=10.0
+                    onchange={settings_callback!(link, settings; n_columns as usize)}
+                    value={settings.n_columns as f64}
                 />
-                <Slider label="View Distance"
-                    max=500.0 step=10.0
-                    onchange={settings_callback!(link, settings; visible_range)}
-                    value={settings.visible_range}
-                />
-                <Slider label="Spacing"
-                    max=100.0
-                    onchange={settings_callback!(link, settings; min_distance)}
-                    value={settings.min_distance}
-                />
-                <Slider label="Max Speed"
-                    max=50.0
-                    onchange={settings_callback!(link, settings; max_speed)}
-                    value={settings.max_speed}
-                />
-                <Slider label="Cohesion"
-                    max=0.5 percentage=true
-                    onchange={settings_callback!(link, settings; cohesion_factor)}
-                    value={settings.cohesion_factor}
-                />
-                <Slider label="Separation"
-                    max=1.0 percentage=true
-                    onchange={settings_callback!(link, settings; separation_factor)}
-                    value={settings.separation_factor}
-                />
-                <Slider label="Alignment"
-                    max=0.5 percentage=true
-                    onchange={settings_callback!(link, settings; alignment_factor)}
-                    value={settings.alignment_factor}
-                />
-                <Slider label="Turn Speed"
-                    max=1.5 percentage=true
-                    onchange={settings_callback!(link, settings; turn_speed_ratio)}
-                    value={settings.turn_speed_ratio}
-                />
-                <Slider label="Color Adaption"
-                    max=1.5 percentage=true
-                    onchange={settings_callback!(link, settings; color_adapt_factor)}
-                    value={settings.color_adapt_factor}
+                <Slider label="Draw Rate"
+                    min=1.0 max=5.0
+                    onchange={settings_callback!(link, settings; draw_rate as usize)}
+                    value={settings.draw_rate as f64}
                 />
             </div>
         }
