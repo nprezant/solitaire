@@ -19,7 +19,9 @@ pub struct Card {
 
 impl Card {
     pub fn new(rank: i32, suit: Suit) -> Self {
-        let pos = Rect::new(20.0, 50.0, 55.0, 90.0);
+        let w = 100.0 / 8.0;
+        let h = Self::get_height(w);
+        let pos = Rect::new(0.0, 0.0, w, h);
         let svg_href = Self::get_svg_href(rank, suit);
         let svg_viewbox = Self::get_svg_viewbox(rank, suit);
         Self {
@@ -29,6 +31,10 @@ impl Card {
             svg_href,
             svg_viewbox,
         }
+    }
+
+    fn get_height(w: f32) -> f32 {
+        w / (RAW_SVG_CARD_WIDTH / RAW_SVG_CARD_HEIGHT)
     }
 
     fn get_svg_href(rank: i32, suit: Suit) -> String {
@@ -71,7 +77,7 @@ impl Card {
                 deck.push(Card::new(rank, suit))
             }
         }
-        spread(&mut deck, 30.0, 30.0);
+        spread(&mut deck, 5.0, 5.0);
         deck
     }
 
@@ -95,7 +101,7 @@ fn spread(cards: &mut Vec<Card>, mut x: f32, mut y: f32) {
     (0..cards.len()).for_each(|i| {
         cards[i].pos.x = x;
         cards[i].pos.y = y;
-        x += 1.0;
-        y += 1.0;
+        x += 2.0;
+        y += 2.0;
     });
 }
