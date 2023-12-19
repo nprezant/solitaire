@@ -10,20 +10,19 @@ impl Dealer {
     }
 
     pub fn deal(cards: &mut Vec<Card>, n_cols: i32) {
-        Self::set_locations(cards, &{
-            let area = PlayArea::DrawPile;
-            let area_index = 0;
-            let sort_index = 0;
-            Location {
-                area,
-                area_index,
-                sort_index,
-            }
-        });
+        Self::set_card_data(
+            cards,
+            &Location {
+                area: PlayArea::DrawPile,
+                area_index: 0,
+                sort_index: 0,
+            },
+            false,
+        );
 
         let mut i = 0;
 
-        for n in (0..n_cols).rev() {
+        for n in (0..n_cols + 1).rev() {
             // Columns
             for j in 0..n {
                 // Cards in column
@@ -50,9 +49,10 @@ impl Dealer {
         }
     }
 
-    fn set_locations(cards: &mut Vec<Card>, loc: &Location) {
+    fn set_card_data(cards: &mut Vec<Card>, loc: &Location, faceup: bool) {
         (0..cards.len()).for_each(|i| {
             cards[i].location.copy_from(loc);
+            cards[i].faceup = faceup;
         });
     }
 }

@@ -1,7 +1,4 @@
-use crate::{
-    dealer::Dealer, layout::Layout, location::Location, play_area::PlayArea, rect::Rect, suit::Suit,
-};
-use log::info;
+use crate::{layout::Layout, location::Location, play_area::PlayArea, rect::Rect, suit::Suit};
 use strum::IntoEnumIterator;
 
 use yew::{html, Html}; // 0.17.1
@@ -113,7 +110,6 @@ impl Card {
 
     // Update card position based on location
     pub fn update_positions(&mut self, layout: &Layout) {
-        info!("hi");
         match self.location.area {
             PlayArea::Hand => {
                 // Skip; this one is being dragged or something.
@@ -155,10 +151,6 @@ impl Card {
                 deck.push(Card::new(rank, suit))
             }
         }
-        Dealer::shuffle(&mut deck);
-        Dealer::deal(&mut deck, 8);
-        Dealer::update_positions(&mut deck);
-        //spread(&mut deck, 5.0, 5.0);
         deck
     }
 

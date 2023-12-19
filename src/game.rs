@@ -1,6 +1,8 @@
+use log::info;
 use yew::{html, Component, Context, Html, Properties};
 
 use crate::card::Card;
+use crate::dealer::Dealer;
 use crate::settings::Settings;
 
 #[derive(Debug)]
@@ -16,6 +18,7 @@ pub struct Props {
 #[derive(Debug)]
 pub struct Game {
     cards: Vec<Card>,
+    iteration: usize,
 }
 
 impl Component for Game {
@@ -23,10 +26,30 @@ impl Component for Game {
     type Properties = Props;
 
     fn create(ctx: &Context<Self>) -> Self {
-        let _ = ctx;
-        let cards = Card::new_deck();
+        let mut cards = Card::new_deck();
+        Dealer::shuffle(&mut cards);
+        Dealer::deal(&mut cards, ctx.props().settings.n_columns as i32);
+        Dealer::update_positions(&mut cards);
+        let iteration: usize = ctx.props().iteration;
 
-        Self { cards }
+        Self { cards, iteration }
+    }
+
+    fn changed(&mut self, ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
+        let props = ctx.props();
+        let should_reset = self.iteration != props.iteration;
+        self.iteration = props.iteration;
+        if should_reset {
+            info!("Resetting for iteration {}", self.iteration);
+            let settings = &props.settings;
+
+            info!("n columns = {}", settings.n_columns);
+            Dealer::deal(&mut self.cards, settings.n_columns as i32);
+            Dealer::update_positions(&mut self.cards);
+            true
+        } else {
+            false
+        }
     }
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
