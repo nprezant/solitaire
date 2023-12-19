@@ -1,6 +1,6 @@
-use core::fmt;
-
 use strum::EnumIter;
+
+use crate::macros::ez_display;
 
 #[derive(Copy, Clone, Debug, PartialEq, EnumIter)]
 pub enum Suit {
@@ -23,18 +23,6 @@ impl Suit {
             Suit::Diamond | Suit::Heart => SuitColor::Red,
         }
     }
-}
-
-macro_rules! ez_display {
-    ($struct_name:ident) => {
-        impl fmt::Display for $struct_name {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                write!(f, "{:?}", self)
-                // or, alternatively:
-                // fmt::Debug::fmt(self, f)
-            }
-        }
-    };
 }
 
 ez_display!(Suit);

@@ -1,6 +1,6 @@
-use core::fmt;
-
 use strum::EnumIter;
+
+use crate::macros::ez_display;
 
 #[derive(Copy, Clone, Debug, PartialEq, EnumIter)]
 pub enum PlayArea {
@@ -10,10 +10,4 @@ pub enum PlayArea {
     Foundation,
 }
 
-impl fmt::Display for PlayArea {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-        // or, alternatively:
-        // fmt::Debug::fmt(self, f)
-    }
-}
+ez_display!(PlayArea);

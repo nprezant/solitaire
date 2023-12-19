@@ -10,6 +10,7 @@ mod dealer;
 mod game;
 mod layout;
 mod location;
+mod macros;
 mod play_area;
 mod rect;
 mod settings;

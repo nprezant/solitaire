@@ -1,3 +1,4 @@
+use crate::macros::ez_display;
 use crate::play_area::PlayArea;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -16,3 +17,5 @@ impl Location {
         self.sort_index = other.sort_index;
     }
 }
+
+ez_display!(Location);
