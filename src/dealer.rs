@@ -1,3 +1,4 @@
+use log::info;
 use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
@@ -63,8 +64,10 @@ impl Dealer {
     pub fn auto_move(cards: &mut Vec<Card>) -> bool {
         // Create a list of possible moves, pick the best one.
         match AutoMove::get_best_move(cards) {
-            Some(_move_data) => {
+            Some(move_data) => {
                 // do the move
+                let card = move_data.card;
+                info!("Moving card {}", card);
                 true
             }
             None => false,

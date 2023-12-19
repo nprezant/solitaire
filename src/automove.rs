@@ -1,8 +1,8 @@
 use crate::{card::Card, location::Location, play_area::PlayArea};
 
 pub struct MoveData<'a> {
-    card: &'a Card,
-    to: Location,
+    pub card: &'a Card,
+    pub to: Location,
 }
 
 pub struct AutoMove {}

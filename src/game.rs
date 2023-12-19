@@ -13,12 +13,13 @@ pub struct Props {
     pub settings: Settings,
     #[prop_or_default]
     pub iteration: usize,
+    #[prop_or_default]
+    pub auto_move: usize,
 }
 
 #[derive(Debug)]
 pub struct Game {
     cards: Vec<Card>,
-    iteration: usize,
 }
 
 impl Component for Game {
@@ -30,20 +31,24 @@ impl Component for Game {
         Dealer::shuffle(&mut cards);
         Dealer::deal(&mut cards, ctx.props().settings.n_columns as i32);
         Dealer::update_positions(&mut cards);
-        let iteration: usize = ctx.props().iteration;
 
-        Self { cards, iteration }
+        Self { cards }
     }
 
     fn changed(&mut self, ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
         let props = ctx.props();
-        let should_reset = self.iteration != props.iteration;
-        self.iteration = props.iteration;
+        let should_auto_move = _old_props.auto_move != props.auto_move;
+        if should_auto_move {
+            // do a thing
+            Dealer::auto_move(&mut self.cards);
+            Dealer::update_positions(&mut self.cards);
+            return true;
+        }
+        let should_reset = _old_props.iteration != props.iteration;
         if should_reset {
-            info!("Resetting for iteration {}", self.iteration);
+            info!("Resetting for iteration {}", props.iteration);
             let settings = &props.settings;
-
-            info!("n columns = {}", settings.n_columns);
+            Dealer::shuffle(&mut self.cards);
             Dealer::deal(&mut self.cards, settings.n_columns as i32);
             Dealer::update_positions(&mut self.cards);
             true

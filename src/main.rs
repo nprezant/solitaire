@@ -29,6 +29,7 @@ pub enum Msg {
 pub struct App {
     settings: Settings,
     iteration: usize,
+    auto_move: usize,
 }
 impl Component for App {
     type Message = Msg;
@@ -39,6 +40,7 @@ impl Component for App {
         Self {
             settings: Settings::load(),
             iteration: 0,
+            auto_move: 0,
         }
     }
 
@@ -65,7 +67,8 @@ impl Component for App {
                 todo!();
             }
             Msg::AutoMove => {
-                todo!();
+                self.auto_move = self.auto_move.wrapping_add(1);
+                true
             }
         }
     }
@@ -74,13 +77,14 @@ impl Component for App {
         let Self {
             ref settings,
             iteration,
+            auto_move,
             ..
         } = *self;
 
         html! {
             <>
                 <h1 class="title">{ "Solitaire:" }{iteration}</h1>
-                <Game settings={settings.clone()} {iteration} />
+                <Game settings={settings.clone()} {iteration} {auto_move} />
                 { self.view_panel(ctx.link()) }
             </>
         }
@@ -94,6 +98,7 @@ impl App {
                 <div class="panel__buttons">
                     <button onclick={link.callback(|_| Msg::ResetSettings)}>{ "Use Defaults" }</button>
                     <button onclick={link.callback(|_| Msg::RestartGame)}>{ "Restart" }</button>
+                    <button onclick={link.callback(|_| Msg::AutoMove)}>{ "Auto Move" }</button>
                 </div>
             </div>
         }
