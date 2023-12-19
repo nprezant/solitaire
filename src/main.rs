@@ -4,6 +4,7 @@ use slider::Slider;
 use yew::html::Scope;
 use yew::{html, Component, Context, Html};
 
+mod automove;
 mod card;
 mod dealer;
 mod game;

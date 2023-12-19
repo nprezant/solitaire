@@ -1,6 +1,8 @@
 use rand::{seq::SliceRandom, thread_rng};
 
-use crate::{card::Card, layout::Layout, location::Location, play_area::PlayArea};
+use crate::{
+    automove::AutoMove, card::Card, layout::Layout, location::Location, play_area::PlayArea,
+};
 
 pub struct Dealer {}
 
@@ -54,5 +56,18 @@ impl Dealer {
             cards[i].location.copy_from(loc);
             cards[i].faceup = faceup;
         });
+    }
+
+    // Performs an auto move
+    // Returns true if any cards moved.
+    pub fn auto_move(cards: &mut Vec<Card>) -> bool {
+        // Create a list of possible moves, pick the best one.
+        match AutoMove::get_best_move(cards) {
+            Some(_move_data) => {
+                // do the move
+                true
+            }
+            None => false,
+        }
     }
 }

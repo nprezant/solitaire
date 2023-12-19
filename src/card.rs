@@ -19,8 +19,8 @@ const SPREAD_OFFSET: f32 = 2.0;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Card {
-    rank: i32,
-    suit: Suit,
+    pub rank: i32,
+    pub suit: Suit,
 
     pos: Rect, // ui position. viewport units.
 
@@ -112,9 +112,6 @@ impl Card {
     // Update card position based on location
     pub fn update_positions(&mut self, layout: &Layout) {
         match self.location.area {
-            PlayArea::Hand => {
-                // Skip; this one is being dragged or something.
-            }
             PlayArea::DrawPile => {
                 self.pos.x = layout.draw_pile.x;
                 self.pos.y = layout.draw_pile.y;

@@ -4,7 +4,6 @@ use strum::EnumIter;
 
 #[derive(Copy, Clone, Debug, PartialEq, EnumIter)]
 pub enum PlayArea {
-    Hand, // e.g. in motion
     DrawPile,
     WastePile,
     Tableau,
