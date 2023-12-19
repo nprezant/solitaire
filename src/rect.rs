@@ -11,3 +11,5 @@ impl Rect {
         Self { x, y, w, h }
     }
 }
+
+crate::macros::ez_display!(Rect);

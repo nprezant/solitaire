@@ -67,7 +67,7 @@ impl Dealer {
             Some(move_data) => {
                 // do the move
                 let card = move_data.card;
-                info!("Moving card {}", card);
+                info!("Moving card {} to {}", card, move_data.to);
                 true
             }
             None => false,
