@@ -22,7 +22,7 @@ impl Dealer {
 
         let mut i = 0;
 
-        for n in (0..n_cols + 1).rev() {
+        for n in 0..=n_cols {
             // Columns
             for j in 0..n {
                 // Cards in column
@@ -34,7 +34,7 @@ impl Dealer {
                 }
 
                 card.location.area = PlayArea::Tableau;
-                card.location.area_index = n;
+                card.location.area_index = n - 1; // why does this happen
                 card.location.sort_index = j;
             }
         }
