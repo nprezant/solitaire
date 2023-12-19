@@ -27,7 +27,6 @@ impl Dealer {
             // Columns
             for j in 0..n {
                 // Cards in column
-                let column_index = n_cols - j - 1;
                 let card = &mut cards[i];
                 i += 1;
 
@@ -36,7 +35,7 @@ impl Dealer {
                 }
 
                 card.location.area = PlayArea::Tableau;
-                card.location.area_index = column_index;
+                card.location.area_index = n;
                 card.location.sort_index = j;
             }
         }

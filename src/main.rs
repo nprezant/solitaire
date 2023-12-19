@@ -34,6 +34,7 @@ impl Component for App {
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
+        wasm_logger::init(wasm_logger::Config::default());
         Self {
             settings: Settings::load(),
             iteration: 0,

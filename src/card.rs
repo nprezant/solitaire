@@ -1,6 +1,7 @@
 use crate::{
     dealer::Dealer, layout::Layout, location::Location, play_area::PlayArea, rect::Rect, suit::Suit,
 };
+use log::info;
 use strum::IntoEnumIterator;
 
 use yew::{html, Html}; // 0.17.1
@@ -112,6 +113,7 @@ impl Card {
 
     // Update card position based on location
     pub fn update_positions(&mut self, layout: &Layout) {
+        info!("hi");
         match self.location.area {
             PlayArea::Hand => {
                 // Skip; this one is being dragged or something.
@@ -125,6 +127,14 @@ impl Card {
                 self.pos.y = layout.waste_pile.y;
             }
             PlayArea::Tableau => {
+                //info!(
+                //    "Start: x={}, y={}, area={}, area={}, sort={}",
+                //    self.pos.x,
+                //    self.pos.y,
+                //    self.location.area,
+                //    self.location.area_index,
+                //    self.location.sort_index
+                //);
                 self.pos.x = layout.tableau.x
                     + (self.pos.w + TABLEAU_INNER_PADDING) * self.location.area_index as f32;
                 self.pos.y = layout.tableau.y + (SPREAD_OFFSET) * self.location.sort_index as f32;
