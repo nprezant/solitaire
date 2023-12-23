@@ -26,9 +26,10 @@ impl Component for Game {
     type Properties = Props;
 
     fn create(ctx: &Context<Self>) -> Self {
-        let mut dealer = Dealer::new();
+        let n_columns = ctx.props().settings.n_columns as i32;
+        let mut dealer = Dealer::new(n_columns);
         dealer.shuffle();
-        dealer.deal(ctx.props().settings.n_columns as i32);
+        dealer.deal();
         dealer.update_positions();
 
         Self { dealer }
@@ -45,9 +46,8 @@ impl Component for Game {
         let should_reset = _old_props.iteration != props.iteration;
         if should_reset {
             info!("Resetting for iteration {}", props.iteration);
-            let settings = &props.settings;
             self.dealer.shuffle();
-            self.dealer.deal(settings.n_columns as i32);
+            self.dealer.deal();
             self.dealer.update_positions();
             true
         } else {
