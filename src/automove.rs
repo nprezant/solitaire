@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
 use crate::{
-    card::Card, dropzone::DropZone, movedata::MoveData, pcard::PlayingCard, play_area::PlayArea,
+    card::Card, dealer::Dealer, dropzone::DropZone, movedata::MoveData, pcard::PlayingCard,
+    play_area::PlayArea,
 };
 
 pub struct AutoMove {}
 
 impl AutoMove {
-    pub fn get_best_move(_cards: &[Card]) -> Option<MoveData> {
+    pub fn get_best_move(dealer: &Dealer) -> Option<MoveData> {
         //let n_columns = 4; // todo pass this in
         //let drop_zones = Self::get_drop_zones(cards, n_columns);
         //let movable = Self::get_movable(cards);

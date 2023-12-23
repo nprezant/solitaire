@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use yew::{html, Html};
 
 use crate::{
-    automove::AutoMove,
     card::Card,
     dropzone::DropZone,
     layout::Layout,
@@ -81,7 +80,7 @@ impl Dealer {
     // Returns true if any cards moved.
     pub fn auto_move(&self) -> bool {
         // Create a list of possible moves, pick the best one.
-        match AutoMove::get_best_move(&self.deck) {
+        match self.get_best_move() {
             Some(move_data) => {
                 // do the move
                 let card = move_data.pcard;
@@ -107,6 +106,59 @@ impl Dealer {
 }
 
 impl Dealer {
+    pub fn get_best_move(&self) -> Option<MoveData> {
+        // Places cards can be dropped
+        let drop_zones = self.get_drop_zones();
+
+        // Cards that can be legally moved
+        let movable = self.get_movable();
+
+        // Cards that can be legally moved and have a legal place to be dropped
+        let mut legal_moves = Vec::new();
+
+        for m in movable.iter() {
+            let mut moves = Self::get_moves(m, &drop_zones);
+            legal_moves.append(&mut moves);
+        }
+
+        // temporary: returning first one found. Should be returning best one somehow.
+        legal_moves.first().cloned()
+    }
+
+    // Get possible moves for a card
+    fn get_moves(card: &PlayingCard, drop_zones: &[DropZone]) -> Vec<MoveData> {
+        let mut moves = Vec::new();
+        for drop_zone in drop_zones.iter() {
+            if let Some(move_data) = Self::drop_ok(card, drop_zone) {
+                moves.push(move_data)
+            }
+        }
+        moves
+    }
+
+    // Can a card be dropped here
+    // And where will it be dropped to
+    fn drop_ok(from: &PlayingCard, drop_zone: &DropZone) -> Option<MoveData> {
+        let move_data = MoveData {
+            pcard: from.clone(), // note np I believe this is a move
+            to: drop_zone.location.clone(),
+        };
+
+        match &drop_zone.card {
+            Some(card) => {
+                let suit_matches = from.suit == card.suit;
+                let color_matches = from.suit.color() == card.suit.color();
+                let rank_delta = from.rank - card.rank;
+
+                match drop_zone.location.area {
+                    PlayArea::Foundation if suit_matches && rank_delta == 1 => Some(move_data),
+                    PlayArea::Tableau if !color_matches && rank_delta == -1 => Some(move_data),
+                    _ => None,
+                }
+            }
+            None => None,
+        }
+    }
     fn get_base_foundations() -> Vec<Location> {
         let mut foundations = Vec::new();
 
