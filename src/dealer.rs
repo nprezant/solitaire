@@ -1,4 +1,4 @@
-use log::info;
+use log::{info, warn};
 use rand::{seq::SliceRandom, thread_rng};
 use std::collections::HashMap;
 use yew::{html, Html};
@@ -82,15 +82,17 @@ impl Dealer {
 
     // Performs an auto move
     // Returns true if any cards moved.
-    pub fn auto_move(&self) -> bool {
+    pub fn auto_move(&mut self) -> bool {
         // Create a list of possible moves, pick the best one.
         match self.get_best_move() {
             Some(move_data) => {
-                // do the move
-                let card = move_data.pcard;
-                info!("Moving card {:?} to {}", card, move_data.to);
-                //cards.last_mut().unwrap().location = move_data.to;
-                //Self::update_positions(cards);
+                info!("Moving card {:?} to {}", move_data.pcard, move_data.to);
+                if let Some(card) = self.deck.iter_mut().find(|x| x.pcard == move_data.pcard) {
+                    card.location = move_data.to;
+                    self.update_positions();
+                } else {
+                    warn!("Card move failed. Card not found in deck.");
+                }
                 true
             }
             None => {
