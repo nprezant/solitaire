@@ -54,7 +54,7 @@ impl AutoMove {
 
         for card in cards {
             match card.location.area {
-                PlayArea::Tableau if card.faceup => {
+                PlayArea::Tableau if card.location.faceup => {
                     // Any faceup cards in the tableau
                     movable.push(card.clone());
                 }
@@ -93,6 +93,7 @@ impl AutoMove {
                         area: PlayArea::Foundation,
                         area_index,
                         sort_index: 0,
+                        faceup: true,
                     },
                 },
             );
@@ -107,6 +108,7 @@ impl AutoMove {
                         area: PlayArea::Tableau,
                         area_index,
                         sort_index: 0,
+                        faceup: true,
                     },
                 },
             );
@@ -123,6 +125,7 @@ impl AutoMove {
                             area: card.location.area,
                             area_index: card.location.area_index,
                             sort_index: card.location.sort_index + 1,
+                            faceup: card.location.faceup,
                         },
                     };
 

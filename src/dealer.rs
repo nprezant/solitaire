@@ -19,8 +19,8 @@ impl Dealer {
                 area: PlayArea::DrawPile,
                 area_index: 0,
                 sort_index: 0,
+                faceup: false,
             },
-            false,
         );
 
         let mut i = 0;
@@ -33,7 +33,7 @@ impl Dealer {
                 i += 1;
 
                 if j == n - 1 {
-                    card.faceup = true;
+                    card.location.faceup = true;
                 }
 
                 card.location.area = PlayArea::Tableau;
@@ -52,10 +52,9 @@ impl Dealer {
         }
     }
 
-    fn set_card_data(cards: &mut Vec<Card>, loc: &Location, faceup: bool) {
+    fn set_card_data(cards: &mut Vec<Card>, loc: &Location) {
         (0..cards.len()).for_each(|i| {
             cards[i].location.copy_from(loc);
-            cards[i].faceup = faceup;
         });
     }
 

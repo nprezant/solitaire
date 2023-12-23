@@ -34,7 +34,6 @@ pub struct Card {
     svg_viewbox: String, // position of this card in the svg image
 
     pub location: Location, // location of the card on the board
-    pub faceup: bool,
 }
 
 impl fmt::Display for Card {
@@ -54,6 +53,7 @@ impl Card {
         let pos = Rect::new(0.0, 0.0, w, h);
         let svg_href = Self::get_svg_href(rank, suit);
         let svg_viewbox = Self::get_svg_viewbox(rank, suit);
+        let faceup = false;
         let location = {
             let area = PlayArea::DrawPile;
             let area_index = 0;
@@ -62,9 +62,9 @@ impl Card {
                 area,
                 area_index,
                 sort_index,
+                faceup,
             }
         };
-        let faceup = false;
         let pcard = PlayingCard { rank, suit };
         Self {
             pcard,
@@ -72,7 +72,6 @@ impl Card {
             svg_href,
             svg_viewbox,
             location,
-            faceup,
         }
     }
 
@@ -175,10 +174,14 @@ impl Card {
         let position = format!("top: {}vw; left: {}vw;", self.pos.y, self.pos.x);
 
         let back = Self::get_svg_href_back();
-        let href: &String = if self.faceup { &self.svg_href } else { &back };
+        let href: &String = if self.location.faceup {
+            &self.svg_href
+        } else {
+            &back
+        };
 
         let back_vb = Self::get_svg_viewbox_back();
-        let vb: &String = if self.faceup {
+        let vb: &String = if self.location.faceup {
             &self.svg_viewbox
         } else {
             &back_vb
