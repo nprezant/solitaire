@@ -29,6 +29,10 @@ impl Dealer {
         self.deck.shuffle(&mut thread_rng());
     }
 
+    pub fn set_n_columns(&mut self, n_columns: i32) {
+        self.n_columns = n_columns;
+    }
+
     pub fn deal(&mut self) {
         Self::set_card_data(
             &mut self.deck,

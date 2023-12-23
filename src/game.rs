@@ -46,6 +46,7 @@ impl Component for Game {
         let should_reset = _old_props.iteration != props.iteration;
         if should_reset {
             info!("Resetting for iteration {}", props.iteration);
+            self.dealer.set_n_columns(props.settings.n_columns as i32);
             self.dealer.shuffle();
             self.dealer.deal();
             self.dealer.update_positions();
