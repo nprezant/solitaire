@@ -166,7 +166,10 @@ impl Card {
         let width = format!("{}vw", self.pos.w);
         let height = format!("{}vw", self.pos.h);
 
-        let position = format!("top: {}vw; left: {}vw;", self.pos.y, self.pos.x);
+        let style = format!(
+            "top: {}vw; left: {}vw; z-index: {}",
+            self.pos.y, self.pos.x, self.location.sort_index
+        );
 
         let back = Self::get_svg_href_back();
         let href: &String = if self.location.faceup {
@@ -183,7 +186,7 @@ impl Card {
         };
 
         html! {
-        <div class="card" style={position}>
+        <div class="card" style={style}>
             <svg viewBox={vb.clone()} {width} {height} >
                 < use href={href.clone()} />
             </svg>
