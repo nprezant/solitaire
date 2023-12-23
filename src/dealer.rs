@@ -5,16 +5,24 @@ use crate::{
     automove::AutoMove, card::Card, layout::Layout, location::Location, play_area::PlayArea,
 };
 
-pub struct Dealer {}
+#[derive(Debug)]
+pub struct Dealer {
+    pub deck: Vec<Card>,
+}
 
 impl Dealer {
-    pub fn shuffle(cards: &mut Vec<Card>) {
-        cards.shuffle(&mut thread_rng());
+    pub fn new() -> Self {
+        let deck = Card::new_deck();
+        Self { deck } // todo this should be a move?
     }
 
-    pub fn deal(cards: &mut Vec<Card>, n_cols: i32) {
+    pub fn shuffle(&mut self) {
+        self.deck.shuffle(&mut thread_rng());
+    }
+
+    pub fn deal(&mut self, n_cols: i32) {
         Self::set_card_data(
-            cards,
+            &mut self.deck,
             &Location {
                 area: PlayArea::DrawPile,
                 area_index: 0,
@@ -29,7 +37,7 @@ impl Dealer {
             // Columns
             for j in 0..n {
                 // Cards in column
-                let card = &mut cards[i];
+                let card = &mut self.deck[i];
                 i += 1;
 
                 if j == n - 1 {
@@ -44,15 +52,16 @@ impl Dealer {
     }
 
     // Updates the positions of the cards based on the card locations.
-    pub fn update_positions(cards: &mut [Card]) {
+    pub fn update_positions(&mut self) {
         let layout = Layout::compute();
 
-        for card in cards {
+        for card in self.deck.iter_mut() {
             card.update_positions(&layout);
         }
     }
 
-    fn set_card_data(cards: &mut Vec<Card>, loc: &Location) {
+    // Sets the location for several cards at once
+    fn set_card_data(cards: &mut [Card], loc: &Location) {
         (0..cards.len()).for_each(|i| {
             cards[i].location.copy_from(loc);
         });
@@ -60,9 +69,9 @@ impl Dealer {
 
     // Performs an auto move
     // Returns true if any cards moved.
-    pub fn auto_move(cards: &mut [Card]) -> bool {
+    pub fn auto_move(&self) -> bool {
         // Create a list of possible moves, pick the best one.
-        match AutoMove::get_best_move(cards) {
+        match AutoMove::get_best_move(&self.deck) {
             Some(move_data) => {
                 // do the move
                 let card: &Card = move_data.card;

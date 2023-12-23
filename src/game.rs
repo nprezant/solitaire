@@ -19,7 +19,7 @@ pub struct Props {
 
 #[derive(Debug)]
 pub struct Game {
-    cards: Vec<Card>,
+    dealer: Dealer,
 }
 
 impl Component for Game {
@@ -27,30 +27,29 @@ impl Component for Game {
     type Properties = Props;
 
     fn create(ctx: &Context<Self>) -> Self {
-        let mut cards = Card::new_deck();
-        Dealer::shuffle(&mut cards);
-        Dealer::deal(&mut cards, ctx.props().settings.n_columns as i32);
-        Dealer::update_positions(&mut cards);
+        let mut dealer = Dealer::new();
+        dealer.shuffle();
+        dealer.deal(ctx.props().settings.n_columns as i32);
+        dealer.update_positions();
 
-        Self { cards }
+        Self { dealer }
     }
 
     fn changed(&mut self, ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
         let props = ctx.props();
         let should_auto_move = _old_props.auto_move != props.auto_move;
         if should_auto_move {
-            // do a thing
-            Dealer::auto_move(&mut self.cards);
-            Dealer::update_positions(&mut self.cards);
+            self.dealer.auto_move();
+            self.dealer.update_positions();
             return true;
         }
         let should_reset = _old_props.iteration != props.iteration;
         if should_reset {
             info!("Resetting for iteration {}", props.iteration);
             let settings = &props.settings;
-            Dealer::shuffle(&mut self.cards);
-            Dealer::deal(&mut self.cards, settings.n_columns as i32);
-            Dealer::update_positions(&mut self.cards);
+            self.dealer.shuffle();
+            self.dealer.deal(settings.n_columns as i32);
+            self.dealer.update_positions();
             true
         } else {
             false
@@ -59,8 +58,8 @@ impl Component for Game {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <div class="cards">
-            { for self.cards.iter().map(Card::render) }
+            <div class="deck">
+            { for self.dealer.deck.iter().map(Card::render) }
             </div>
         }
     }
