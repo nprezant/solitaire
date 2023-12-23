@@ -71,6 +71,24 @@ impl Dealer {
         for card in self.deck.iter_mut() {
             card.update_positions(&layout);
         }
+
+        // The top of tableau stacks should be faceup
+        let top_cards = self.get_top_card_per_stack(&[PlayArea::Tableau]);
+        for pcard in top_cards {
+            self.update_card(pcard, |x| x.location.faceup = true);
+        }
+    }
+
+    // todo make this more efficient
+    fn update_card<F>(&mut self, pcard: PlayingCard, update_fn: F)
+    where
+        F: Fn(&mut Card),
+    {
+        if let Some(card) = self.deck.iter_mut().find(|x| x.pcard == pcard) {
+            update_fn(card);
+        } else {
+            warn!("Card update failed. Card not found in deck.");
+        }
     }
 
     // Sets the location for several cards at once
@@ -87,12 +105,7 @@ impl Dealer {
         match self.get_best_move() {
             Some(move_data) => {
                 info!("Moving card {:?} to {}", move_data.pcard, move_data.to);
-                if let Some(card) = self.deck.iter_mut().find(|x| x.pcard == move_data.pcard) {
-                    card.location = move_data.to;
-                    self.update_positions();
-                } else {
-                    warn!("Card move failed. Card not found in deck.");
-                }
+                self.update_card(move_data.pcard, |x| x.location = move_data.to.clone());
                 true
             }
             None => {
