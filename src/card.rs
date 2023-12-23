@@ -1,6 +1,9 @@
 use core::fmt;
 
-use crate::{layout::Layout, location::Location, play_area::PlayArea, rect::Rect, suit::Suit};
+use crate::{
+    layout::Layout, location::Location, pcard::PlayingCard, play_area::PlayArea, rect::Rect,
+    suit::Suit,
+};
 use strum::IntoEnumIterator;
 
 use yew::{html, Html}; // 0.17.1
@@ -19,21 +22,13 @@ const FOUNDATION_INNER_PADDING: f32 = 2.0;
 const SPREAD_OFFSET: f32 = 2.0;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct PlayingCard {
-    pub rank: i32,
-    pub suit: Suit,
-}
-
-#[derive(Clone, Debug, PartialEq)]
 pub struct Card {
-    pub pcard: PlayingCard,
+    pub pcard: PlayingCard, // this card (the 4 of spades, etc)
+    pub location: Location, // location of the card on the board
 
-    pos: Rect, // ui position. viewport units.
-
+    pos: Rect,           // ui position. viewport units.
     svg_href: String,    // name of the image
     svg_viewbox: String, // position of this card in the svg image
-
-    pub location: Location, // location of the card on the board
 }
 
 impl fmt::Display for Card {
@@ -68,10 +63,10 @@ impl Card {
         let pcard = PlayingCard { rank, suit };
         Self {
             pcard,
+            location,
             pos,
             svg_href,
             svg_viewbox,
-            location,
         }
     }
 

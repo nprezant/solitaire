@@ -11,6 +11,7 @@ mod game;
 mod layout;
 mod location;
 mod macros;
+mod pcard;
 mod play_area;
 mod rect;
 mod settings;
