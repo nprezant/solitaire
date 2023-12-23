@@ -1,7 +1,6 @@
 use log::info;
 use yew::{html, Component, Context, Html, Properties};
 
-use crate::card::Card;
 use crate::dealer::Dealer;
 use crate::settings::Settings;
 
@@ -58,9 +57,9 @@ impl Component for Game {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <div class="deck">
-            { for self.dealer.deck.iter().map(Card::render) }
-            </div>
+            <>
+            { self.dealer.render() }
+            </>
         }
     }
 }

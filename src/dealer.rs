@@ -1,5 +1,6 @@
 use log::info;
 use rand::{seq::SliceRandom, thread_rng};
+use yew::{html, Html};
 
 use crate::{
     automove::AutoMove, card::Card, layout::Layout, location::Location, play_area::PlayArea,
@@ -7,7 +8,7 @@ use crate::{
 
 #[derive(Debug)]
 pub struct Dealer {
-    pub deck: Vec<Card>,
+    deck: Vec<Card>,
 }
 
 impl Dealer {
@@ -84,6 +85,14 @@ impl Dealer {
                 info!("No moves available");
                 false
             }
+        }
+    }
+
+    pub fn render(&self) -> Html {
+        html! {
+            <div class="deck">
+            { for self.deck.iter().map(Card::render) }
+            </div>
         }
     }
 }
