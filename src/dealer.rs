@@ -44,7 +44,7 @@ impl Dealer {
     }
 
     // Updates the positions of the cards based on the card locations.
-    pub fn update_positions(cards: &mut Vec<Card>) {
+    pub fn update_positions(cards: &mut [Card]) {
         let layout = Layout::compute();
 
         for card in cards {
@@ -61,16 +61,21 @@ impl Dealer {
 
     // Performs an auto move
     // Returns true if any cards moved.
-    pub fn auto_move(cards: &mut Vec<Card>) -> bool {
+    pub fn auto_move(cards: &mut [Card]) -> bool {
         // Create a list of possible moves, pick the best one.
         match AutoMove::get_best_move(cards) {
             Some(move_data) => {
                 // do the move
-                let card = move_data.card;
+                let card: &Card = move_data.card;
                 info!("Moving card {} to {}", card, move_data.to);
+                //cards.last_mut().unwrap().location = move_data.to;
+                //Self::update_positions(cards);
                 true
             }
-            None => false,
+            None => {
+                info!("No moves available");
+                false
+            }
         }
     }
 }

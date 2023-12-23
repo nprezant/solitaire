@@ -2,7 +2,7 @@ use strum::EnumIter;
 
 use crate::macros::ez_display;
 
-#[derive(Copy, Clone, Debug, PartialEq, EnumIter)]
+#[derive(Copy, Clone, Debug, PartialEq, EnumIter, Eq, Hash)]
 pub enum PlayArea {
     DrawPile,
     WastePile,
