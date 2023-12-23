@@ -148,9 +148,9 @@ impl AutoMove {
 
         match drop_zone.card {
             Some(card) => {
-                let suit_matches = from.suit == card.suit;
-                let color_matches = from.suit.color() == card.suit.color();
-                let rank_delta = from.rank - card.rank;
+                let suit_matches = from.pcard.suit == card.pcard.suit;
+                let color_matches = from.pcard.suit.color() == card.pcard.suit.color();
+                let rank_delta = from.pcard.rank - card.pcard.rank;
 
                 match drop_zone.location.area {
                     PlayArea::Foundation if suit_matches && rank_delta == 1 => Some(move_data),

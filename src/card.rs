@@ -19,16 +19,21 @@ const FOUNDATION_INNER_PADDING: f32 = 2.0;
 const SPREAD_OFFSET: f32 = 2.0;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Card {
+pub struct PlayingCard {
     pub rank: i32,
     pub suit: Suit,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Card {
+    pub pcard: PlayingCard,
 
     pos: Rect, // ui position. viewport units.
 
-    svg_href: String,
-    svg_viewbox: String,
+    svg_href: String,    // name of the image
+    svg_viewbox: String, // position of this card in the svg image
 
-    pub location: Location,
+    pub location: Location, // location of the card on the board
     pub faceup: bool,
 }
 
@@ -37,7 +42,7 @@ impl fmt::Display for Card {
         write!(
             f,
             "{:?} of {:?}s at {:?}",
-            self.rank, self.suit, self.location
+            self.pcard.rank, self.pcard.suit, self.location
         )
     }
 }
@@ -60,9 +65,9 @@ impl Card {
             }
         };
         let faceup = false;
+        let pcard = PlayingCard { rank, suit };
         Self {
-            rank,
-            suit,
+            pcard,
             pos,
             svg_href,
             svg_viewbox,
