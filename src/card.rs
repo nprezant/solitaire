@@ -185,8 +185,10 @@ impl Card {
             &back_vb
         };
 
+        let classes = format!("card {}-{}", self.pcard.suit, self.pcard.rank);
+
         html! {
-        <div class="card" style={style}>
+        <div class={classes} style={style}>
             <svg viewBox={vb.clone()} {width} {height} >
                 < use href={href.clone()} />
             </svg>
