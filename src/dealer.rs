@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use log::{info, warn};
 use rand::{seq::SliceRandom, thread_rng};
 use std::collections::HashMap;
@@ -16,21 +17,30 @@ use crate::{
 #[derive(Debug)]
 pub struct Dealer {
     deck: Vec<Card>,
-    n_columns: i32,
+    n_columns: usize,
+    draw_rate: usize,
 }
 
 impl Dealer {
-    pub fn new(n_columns: i32) -> Self {
+    pub fn new(n_columns: usize, draw_rate: usize) -> Self {
         let deck = Card::new_deck();
-        Self { deck, n_columns } // todo this should be a move?
+        Self {
+            deck,
+            n_columns,
+            draw_rate,
+        } // todo this should be a move?
     }
 
     pub fn shuffle(&mut self) {
         self.deck.shuffle(&mut thread_rng());
     }
 
-    pub fn set_n_columns(&mut self, n_columns: i32) {
+    pub fn set_n_columns(&mut self, n_columns: usize) {
         self.n_columns = n_columns;
+    }
+
+    pub fn set_draw_rate(&mut self, draw_rate: usize) {
+        self.draw_rate = draw_rate;
     }
 
     pub fn deal(&mut self) {
@@ -64,6 +74,30 @@ impl Dealer {
         }
     }
 
+    // The draw step. Moving cards from the draw pile to the waste pile.
+    pub fn draw_step(&mut self) {
+        // TODO reset waste pile if needed
+        let n_waste_cards = self
+            .deck
+            .iter()
+            .filter(|c| c.location.area == PlayArea::WastePile)
+            .count();
+
+        self.deck
+            .iter_mut()
+            .filter(|c| c.location.area == PlayArea::DrawPile)
+            .sorted_by(|a, b| Ord::cmp(&a.location.sort_index, &b.location.sort_index))
+            .take(self.draw_rate)
+            .enumerate()
+            .for_each(|(n, c)| {
+                c.location.area = PlayArea::WastePile;
+                c.location.sort_index = n + n_waste_cards;
+                c.location.faceup = true;
+            });
+
+        self.update_positions();
+    }
+
     // Updates the positions of the cards based on the card locations.
     pub fn update_positions(&mut self) {
         let layout = Layout::compute();
@@ -79,11 +113,11 @@ impl Dealer {
         }
     }
 
-    // todo make this more efficient
     fn update_card<F>(&mut self, pcard: PlayingCard, update_fn: F)
     where
         F: Fn(&mut Card),
     {
+        // todo make this more efficient
         if let Some(card) = self.deck.iter_mut().find(|x| x.pcard == pcard) {
             update_fn(card);
         } else {
@@ -109,8 +143,9 @@ impl Dealer {
                 true
             }
             None => {
-                info!("No moves available");
-                false
+                info!("No moves available. Drawing.");
+                self.draw_step();
+                true
             }
         }
     }
@@ -193,7 +228,7 @@ impl Dealer {
         foundations
     }
 
-    fn get_base_tableau(n_columns: i32) -> Vec<Location> {
+    fn get_base_tableau(n_columns: usize) -> Vec<Location> {
         let mut tableau = Vec::new();
 
         for area_index in 0..n_columns {

@@ -6,9 +6,9 @@ pub struct Location {
     // Area of the board
     pub area: PlayArea,
     // Index of the area: foundation 1, 2, 3, 4
-    pub area_index: i32,
+    pub area_index: usize,
     // Index within the area: foundation 1; card index 0;
-    pub sort_index: i32,
+    pub sort_index: usize,
     // Whether or not the card is faceup
     pub faceup: bool,
 }
@@ -21,7 +21,7 @@ impl Location {
         self.faceup = other.faceup;
     }
 
-    pub fn stack_id(&self) -> (PlayArea, i32) {
+    pub fn stack_id(&self) -> (PlayArea, usize) {
         (self.area, self.area_index)
     }
 }
