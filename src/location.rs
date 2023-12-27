@@ -20,6 +20,10 @@ impl Location {
         self.sort_index = other.sort_index;
         self.faceup = other.faceup;
     }
+
+    pub fn stack_id(&self) -> (PlayArea, i32) {
+        (self.area, self.area_index)
+    }
 }
 
 ez_display!(Location);

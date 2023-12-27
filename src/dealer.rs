@@ -74,8 +74,8 @@ impl Dealer {
 
         // The top of tableau stacks should be faceup
         let top_cards = self.get_top_card_per_stack(&[PlayArea::Tableau]);
-        for pcard in top_cards {
-            self.update_card(pcard, |x| x.location.faceup = true);
+        for card in top_cards {
+            self.update_card(card.pcard, |x| x.location.faceup = true);
         }
     }
 
@@ -228,43 +228,30 @@ impl Dealer {
         }
 
         // Keep only the top card in each stack
-        // todo use utility for this
-        for card in self.deck.iter() {
-            match card.location.area {
-                PlayArea::Tableau | PlayArea::Foundation => {
-                    let key = (card.location.area, card.location.area_index);
+        let top_cards = self.get_top_card_per_stack(&[PlayArea::Tableau, PlayArea::Foundation]);
+        for card in top_cards {
+            let mut drop_location = card.location.clone();
+            drop_location.sort_index += 1;
 
-                    let mut drop_location = card.location.clone();
-                    drop_location.sort_index += 1;
-
-                    let drop_zone = DropZone {
-                        card: Some(card.pcard.clone()),
-                        location: drop_location,
-                    };
-
-                    let _value = zones
-                        .entry(key)
-                        .and_modify(|v| {
-                            if card.location.sort_index > v.location.sort_index {
-                                *v = drop_zone.clone();
-                            }
-                        })
-                        .or_insert(drop_zone);
-                }
-                _ => (),
-            }
+            zones.insert(
+                card.location.stack_id(),
+                DropZone {
+                    card: Some(card.pcard),
+                    location: drop_location,
+                },
+            );
         }
 
         zones.values().cloned().collect()
     }
 
-    fn get_top_card_per_stack(&self, areas: &[PlayArea]) -> Vec<PlayingCard> {
+    fn get_top_card_per_stack(&self, areas: &[PlayArea]) -> Vec<PlacedCard> {
         let mut top_cards = HashMap::new();
 
         for card in self.deck.iter() {
             if areas.contains(&card.location.area) {
                 // Key identifies the area and the stack.
-                let key = (card.location.area, card.location.area_index);
+                let key = card.location.stack_id();
 
                 let placed_card = PlacedCard {
                     pcard: card.pcard.clone(),
@@ -283,7 +270,7 @@ impl Dealer {
             }
         }
 
-        top_cards.values().map(|c| c.pcard.clone()).collect()
+        top_cards.values().cloned().collect()
     }
 
     // Get cards that can be moved. Like not in the middle of the deck.
@@ -302,7 +289,7 @@ impl Dealer {
 
         // Top card of the waste pile or any foundation pile is also movable
         let top_cards = self.get_top_card_per_stack(&[PlayArea::WastePile, PlayArea::Foundation]);
-        movable.extend(top_cards);
+        movable.extend(top_cards.iter().map(|c| c.pcard.clone()));
 
         movable
     }
