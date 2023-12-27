@@ -87,6 +87,7 @@ impl Dealer {
             .iter_mut()
             .filter(|c| c.location.area == PlayArea::DrawPile)
             .sorted_by(|a, b| Ord::cmp(&a.location.sort_index, &b.location.sort_index))
+            .rev()
             .take(self.draw_rate)
             .enumerate()
             .for_each(|(n, c)| {
@@ -96,6 +97,13 @@ impl Dealer {
             });
 
         self.update_positions();
+    }
+
+    fn get_cards_in_area(&mut self, area: PlayArea) -> std::vec::IntoIter<&mut Card> {
+        self.deck
+            .iter_mut()
+            .filter(|c| c.location.area == area)
+            .sorted_by(|a, b| Ord::cmp(&a.location.sort_index, &b.location.sort_index))
     }
 
     // Updates the positions of the cards based on the card locations.
@@ -111,6 +119,16 @@ impl Dealer {
         for card in top_cards {
             self.update_card(card.pcard, |x| x.location.faceup = true);
         }
+
+        // Top three cards of waste pile should be offset
+        let n_spread = 3;
+        self.get_cards_in_area(PlayArea::WastePile)
+            .rev()
+            .take(n_spread)
+            .enumerate()
+            .for_each(|(n, c)| {
+                c.spread_right(n_spread - n - 1);
+            });
     }
 
     fn update_card<F>(&mut self, pcard: PlayingCard, update_fn: F)

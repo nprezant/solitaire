@@ -139,17 +139,30 @@ impl Card {
                 //    self.location.area_index,
                 //    self.location.sort_index
                 //);
-                self.pos.x = layout.tableau.x
-                    + (self.pos.w + TABLEAU_INNER_PADDING) * self.location.area_index as f32;
-                self.pos.y = layout.tableau.y + (SPREAD_OFFSET) * self.location.sort_index as f32;
+                self.pos.x = layout.tableau.x;
+                self.pos.y = layout.tableau.y;
+                self.shift_right(self.location.area_index, TABLEAU_INNER_PADDING);
+                self.spread_down(self.location.sort_index);
             }
             PlayArea::Foundation => {
-                self.pos.x = layout.foundations.x
-                    + (self.pos.w + FOUNDATION_INNER_PADDING) * self.location.area_index as f32;
-                self.pos.y =
-                    layout.foundations.y + (SPREAD_OFFSET) * self.location.sort_index as f32;
+                self.pos.x = layout.foundations.x;
+                self.pos.y = layout.foundations.y;
+                self.shift_right(self.location.area_index, FOUNDATION_INNER_PADDING);
+                self.spread_down(self.location.sort_index);
             }
         }
+    }
+
+    fn shift_right(&mut self, places: usize, padding: f32) {
+        self.pos.x += (self.pos.w + padding) * places as f32;
+    }
+
+    pub fn spread_right(&mut self, places: usize) {
+        self.pos.x += SPREAD_OFFSET * places as f32;
+    }
+
+    pub fn spread_down(&mut self, places: usize) {
+        self.pos.y += SPREAD_OFFSET * places as f32;
     }
 
     pub fn new_deck() -> Vec<Card> {
